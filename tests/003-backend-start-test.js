@@ -3,7 +3,7 @@ const {assert, exec, tools} = require('../utils')
  * @type {IntegrationTestUtils}
  */
 describe('Backend Start', function () {
-  this.timeout(5000)
+  this.timeout(10000)
 
   beforeEach(async () => {
     return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ describe('Backend Start', function () {
 
   it('should be possible to start the backend', function (done) {
     // noinspection JSPotentiallyInvalidUsageOfThis
-    this.timeout(4500)
+    this.timeout(8000)
     try {
       let killed = false
       const command = `${tools.getExecutable()} backend start`
@@ -53,7 +53,7 @@ describe('Backend Start', function () {
           proc.kill()
           killed = true
         }
-      }, 4000)
+      }, 7500)
     } catch (err) {
       assert.ifError(err)
     }
