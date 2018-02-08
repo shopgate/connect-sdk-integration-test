@@ -21,7 +21,7 @@ describe('Backend Start', function () {
 
   it('should be possible to start the backend', function (done) {
     // noinspection JSPotentiallyInvalidUsageOfThis
-    this.timeout(8000)
+    this.timeout(30000)
     try {
       let killed = false
       const command = `${tools.getExecutable()} backend start`
@@ -53,7 +53,7 @@ describe('Backend Start', function () {
           proc.kill()
           killed = true
         }
-      }, 7500)
+      }, 28000)
     } catch (err) {
       assert.ifError(err)
     }
