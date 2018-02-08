@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+.idea
+npm-debug.log*
+build
+.nyc_output
+package-lock.json
+*.iml
+.vscode/
+.env
