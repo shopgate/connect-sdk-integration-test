@@ -27,11 +27,20 @@ describe('Backend Start', function () {
       const command = `${tools.getExecutable()} backend start`
       let proc = exec(command)
       const messages = []
+
+      const to = setTimeout(() => {
+        if (!killed) {
+          proc.kill()
+          killed = true
+        }
+      }, 28000)
+
       proc.stdout.on('data', (data) => {
         messages.push(JSON.parse(data).msg)
         if (messages.includes('Backend ready')) {
           if (!killed) {
             killed = true
+            clearTimeout(to)
             proc.kill()
           }
         }
@@ -47,13 +56,6 @@ describe('Backend Start', function () {
         assert.ok(messages.includes('Backend ready'), 'Backend is ready')
         done()
       })
-
-      setTimeout(() => {
-        if (!killed) {
-          proc.kill()
-          killed = true
-        }
-      }, 28000)
     } catch (err) {
       assert.ifError(err)
     }
