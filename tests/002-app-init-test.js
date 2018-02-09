@@ -2,11 +2,8 @@ const {assert, exec, tools} = require('../utils')
 
 describe('App init', () => {
   beforeEach(async () => {
-    return new Promise(resolve => {
-      tools.setup()
-        .then(() => tools.login())
-        .then(() => resolve())
-    })
+    await tools.setup()
+    await tools.login()
   })
 
   afterEach(async () => {

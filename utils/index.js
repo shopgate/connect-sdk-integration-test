@@ -8,7 +8,8 @@ const tools = require('./IntegrationTestUtils.js')
 const e = {
   exec: require('child_process').exec,
   assert: require('assert'),
-  tools: tools
+  tools: tools,
+  utils: require('./utils')
 }
 
 module.exports = e
