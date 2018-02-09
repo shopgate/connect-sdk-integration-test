@@ -57,4 +57,17 @@ describe('Unattached pipeline calls', function () {
       done()
     })
   })
+
+  it('should send a trusted pipeline request to and receive a response', (done) => {
+    const options = {
+      url: 'http://localhost:8813/trustedPipelines/getRegistrationUrl_v1',
+      json: {}
+    }
+
+    request.post(options, (err, res, body) => {
+      assert.ifError(err)
+      assert.deepEqual(body, {url: ''})
+      done()
+    })
+  })
 })
