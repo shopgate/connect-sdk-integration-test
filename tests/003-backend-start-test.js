@@ -21,17 +21,26 @@ describe('Backend Start', function () {
 
   it('should be possible to start the backend', function (done) {
     // noinspection JSPotentiallyInvalidUsageOfThis
-    this.timeout(8000)
+    this.timeout(30000)
     try {
       let killed = false
       const command = `${tools.getExecutable()} backend start`
       let proc = exec(command)
       const messages = []
+
+      const to = setTimeout(() => {
+        if (!killed) {
+          proc.kill()
+          killed = true
+        }
+      }, 28000)
+
       proc.stdout.on('data', (data) => {
         messages.push(JSON.parse(data).msg)
         if (messages.includes('Backend ready')) {
           if (!killed) {
             killed = true
+            clearTimeout(to)
             proc.kill()
           }
         }
@@ -47,13 +56,6 @@ describe('Backend Start', function () {
         assert.ok(messages.includes('Backend ready'), 'Backend is ready')
         done()
       })
-
-      setTimeout(() => {
-        if (!killed) {
-          proc.kill()
-          killed = true
-        }
-      }, 7500)
     } catch (err) {
       assert.ifError(err)
     }

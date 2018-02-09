@@ -1,6 +1,5 @@
 const {assert, exec, tools} = require('../utils')
 describe('Login', function () {
-
   this.timeout(4000)
 
   beforeEach(async () => {
