@@ -82,11 +82,7 @@ class IntegrationTestUtils {
     return execPromise(`${this.getExecutable()} init --appId ${appId || this.getAppId()}`)
   }
 
-  async getBackendProcess (username, password, appId, fresh = true) {
-    if (fresh) {
-      await this.login(username, password)
-      await this.initApp(appId)
-    }
+  async getBackendProcess (username, password, appId) {
     const command = `${this.getExecutable()} backend start`
     const proc = exec(command)
 

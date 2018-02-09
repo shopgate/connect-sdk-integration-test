@@ -1,5 +1,7 @@
 process.env.INTEGRATION_TEST = 'true'
 process.env.LOG_LEVEL = 'debug'
+process.env.PROXY_PORT = '8813'
+
 /**
  * @type {IntegrationTestUtils}
  */
