@@ -2,19 +2,19 @@ const {assert, tools, utils} = require('../utils')
 const request = require('request')
 
 describe('Unattached pipeline calls', function () {
-  let backendProcess
+  let backendProcessPid
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     this.timeout(10000)
     await tools.setup()
     await tools.login()
     await tools.initApp()
-    backendProcess = await tools.getBackendProcess()
+    backendProcessPid = await tools.getBackendProcess()
   })
 
   afterEach(async () => {
-    backendProcess.kill()
-    await utils.processWasKilled(backendProcess.pid)
+    process.kill(backendProcessPid, 'SIGINT')
+    await utils.processWasKilled(backendProcessPid)
     return tools.cleanup()
   })
 

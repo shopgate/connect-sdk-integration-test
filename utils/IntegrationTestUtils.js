@@ -86,7 +86,6 @@ class IntegrationTestUtils {
     const command = `${this.getExecutable()} backend start`
     const proc = exec(command)
 
-    let readyFunc = null
     let timeout = null
 
     return new Promise((resolve, reject) => {
@@ -97,14 +96,24 @@ class IntegrationTestUtils {
       }, 10000)
 
       // Backend started properly
-      readyFunc = (data) => {
-        if (JSON.parse(data).msg.includes('Backend ready')) {
-          clearTimeout(timeout)
-          resolve(proc)
+      let backendPid
+      proc.stdout.on('data', (data) => {
+        let parsedData
+        try {
+          parsedData = JSON.parse(data)
+        } catch (error) {
+          // likely output from step executor; this is all messages as one block on Linux and thus not parsable
+          // it can be ignored though, we're only looking for messages from the command itself
+          // console.log('Unparsable log string on stdout of child process: ' + data)
+          return
         }
-      }
 
-      proc.stdout.on('data', readyFunc)
+        if (!backendPid) backendPid = parsedData.pid
+        if (parsedData.msg.includes('Backend ready')) {
+          clearTimeout(timeout)
+          resolve(backendPid)
+        }
+      })
     })
   }
 

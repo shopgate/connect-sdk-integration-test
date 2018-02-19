@@ -25,7 +25,7 @@ describe('App init', () => {
         }
       })
 
-      proc.on('close', (code) => {
+      proc.on('exit', (code) => {
         assert.equal(code, 0)
         assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
         done()
