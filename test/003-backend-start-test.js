@@ -54,9 +54,9 @@ describe('Backend Start', function () {
         done()
       })
 
-      proc.on('close', (code) => {
-        assert.equal(code, null)
-        assert.ok(messages.includes('Backend ready'), 'Backend is ready')
+      proc.on('exit', (code) => {
+        assert.equal(code, 0)
+        assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message.')
         done()
       })
     } catch (err) {
