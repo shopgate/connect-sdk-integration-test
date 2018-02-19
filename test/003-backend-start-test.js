@@ -35,13 +35,16 @@ describe('Backend Start', function () {
         }
       }, 28000)
 
+      let backendPid
       proc.stdout.on('data', (data) => {
-        messages.push(JSON.parse(data).msg)
+        const parsedData = JSON.parse(data)
+        if (!backendPid && parsedData.pid) backendPid = parsedData.pid
+        messages.push(parsedData.msg)
         if (messages.includes('Backend ready')) {
           if (!killed) {
             killed = true
             clearTimeout(to)
-            proc.kill()
+            process.kill(backendPid, 'SIGINT')
           }
         }
       })
