@@ -3,10 +3,10 @@ const path = require('path')
 const fsEx = require('fs-extra')
 const fkrCompany = require('faker').company
 const config = require('../config.js')
+const exec = require('child_process').exec
 const execPromise = util.promisify(require('child_process').exec)
 
 class IntegrationTestUtils {
-
   constructor () {
     this.workingDir = IntegrationTestUtils.getUnusedRandomPath()
     this.rootDir = path.join(__dirname, '..')
@@ -20,7 +20,7 @@ class IntegrationTestUtils {
     while (true) {
       const randomPart = fkrCompany.bsAdjective().replace('/', '-') +
         '-' + fkrCompany.bsNoun().replace('/', '-')
-      const randomPath = path.join(__dirname, '..', randomPart)
+      const randomPath = path.join(__dirname, '..', 'test_environment', randomPart)
       if (!fsEx.pathExistsSync(randomPath)) {
         return randomPath
       }
@@ -80,6 +80,41 @@ class IntegrationTestUtils {
 
   async initApp (appId) {
     return execPromise(`${this.getExecutable()} init --appId ${appId || this.getAppId()}`)
+  }
+
+  async getBackendProcess (username, password, appId) {
+    const command = `${this.getExecutable()} backend start`
+    const proc = exec(command)
+
+    let timeout = null
+
+    return new Promise((resolve, reject) => {
+      // Timeout if process did not start
+      timeout = setTimeout(() => {
+        proc.stdout.removeAllListeners()
+        reject(new Error('Backend did not start properly'))
+      }, 10000)
+
+      // Backend started properly
+      let backendPid
+      proc.stdout.on('data', (data) => {
+        let parsedData
+        try {
+          parsedData = JSON.parse(data)
+        } catch (error) {
+          // likely output from step executor; this is all messages as one block on Linux and thus not parsable
+          // it can be ignored though, we're only looking for messages from the command itself
+          // console.log('Unparsable log string on stdout of child process: ' + data)
+          return
+        }
+
+        if (!backendPid) backendPid = parsedData.pid
+        if (parsedData.msg.includes('Backend ready')) {
+          clearTimeout(timeout)
+          resolve(backendPid)
+        }
+      })
+    })
   }
 
   async getSession () {

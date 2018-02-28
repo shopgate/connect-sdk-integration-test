@@ -2,11 +2,8 @@ const {assert, exec, tools} = require('../utils')
 
 describe('App init', () => {
   beforeEach(async () => {
-    return new Promise(resolve => {
-      tools.setup()
-        .then(() => tools.login())
-        .then(() => resolve())
-    })
+    await tools.setup()
+    await tools.login()
   })
 
   afterEach(async () => {
@@ -28,7 +25,7 @@ describe('App init', () => {
         }
       })
 
-      proc.on('close', (code) => {
+      proc.on('exit', (code) => {
         assert.equal(code, 0)
         assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
         done()

@@ -19,7 +19,7 @@ describe('Login', function () {
         messages.push(JSON.parse(data).msg)
       })
 
-      proc.on('close', () => {
+      proc.on('exit', () => {
         assert.ok(messages.includes('Credentials invalid'))
         done()
       })
@@ -38,7 +38,7 @@ describe('Login', function () {
       proc.stdout.on('data', (msg) => {
         messages.push(JSON.parse(msg).msg)
       })
-      proc.on('close', () => {
+      proc.on('exit', () => {
         assert.ok(messages.includes('Login successful'), 'Login was successful')
         try {
           tools.getSession().then(sessionData => {
