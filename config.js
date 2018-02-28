@@ -24,4 +24,3 @@ intercept(function (txt) {
   return filtered
 })
 module.exports = config
-

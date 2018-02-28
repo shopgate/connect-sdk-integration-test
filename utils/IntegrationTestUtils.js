@@ -104,7 +104,7 @@ class IntegrationTestUtils {
         } catch (error) {
           // likely output from step executor; this is all messages as one block on Linux and thus not parsable
           // it can be ignored though, we're only looking for messages from the command itself
-          // console.log('Unparsable log string on stdout of child process: ' + data)
+          console.log('Unparsable log string on stdout of child process: ' + data)
           return
         }
 
