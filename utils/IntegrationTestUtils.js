@@ -5,6 +5,8 @@ const fkrCompany = require('faker').company
 const config = require('../config.js')
 const exec = require('child_process').exec
 const execPromise = util.promisify(require('child_process').exec)
+const JSONStream = require('JSONStream')
+const es = require('event-stream')
 
 class IntegrationTestUtils {
   constructor () {
@@ -19,7 +21,7 @@ class IntegrationTestUtils {
   static getUnusedRandomPath () {
     while (true) {
       const randomPart = fkrCompany.bsAdjective().replace('/', '-') +
-        '-' + fkrCompany.bsNoun().replace('/', '-')
+        '-' + fkrCompany.bsNoun().replace('/', '-').replace(' ', '')
       const randomPath = path.join(__dirname, '..', 'test_environment', randomPart)
       if (!fsEx.pathExistsSync(randomPath)) {
         return randomPath
@@ -97,23 +99,15 @@ class IntegrationTestUtils {
 
       // Backend started properly
       let backendPid
-      proc.stdout.on('data', (data) => {
-        let parsedData
-        try {
-          parsedData = JSON.parse(data)
-        } catch (error) {
-          // likely output from step executor; this is all messages as one block on Linux and thus not parsable
-          // it can be ignored though, we're only looking for messages from the command itself
-          console.log('Unparsable log string on stdout of child process: ' + data)
-          return
-        }
 
-        if (!backendPid) backendPid = parsedData.pid
-        if (parsedData.msg.includes('Backend ready')) {
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        if (!backendPid && data.pid) backendPid = data.pid
+
+        if(data.msg.includes('Backend ready')) {
           clearTimeout(timeout)
           resolve(backendPid)
         }
-      })
+      }))
     })
   }
 

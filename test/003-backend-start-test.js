@@ -1,3 +1,5 @@
+const JSONStream = require('JSONStream')
+const es = require('event-stream')
 const {assert, exec, tools} = require('../utils')
 /**
  * @type {IntegrationTestUtils}
@@ -36,10 +38,10 @@ describe('Backend Start', function () {
       }, 28000)
 
       let backendPid
-      proc.stdout.on('data', (data) => {
-        const parsedData = JSON.parse(data)
-        if (!backendPid && parsedData.pid) backendPid = parsedData.pid
-        messages.push(parsedData.msg)
+
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        if(!backendPid && data.pid) backendPid = data.pid
+        messages.push(data.msg)
         if (messages.includes('Backend ready')) {
           if (!killed) {
             killed = true
@@ -47,7 +49,7 @@ describe('Backend Start', function () {
             process.kill(backendPid, 'SIGINT')
           }
         }
-      })
+      }))
 
       proc.stderr.on('data', (data) => {
         assert.ifError(data)
