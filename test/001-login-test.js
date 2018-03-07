@@ -1,4 +1,6 @@
-const {assert, exec, tools} = require('../utils')
+const JSONStream = require('JSONStream')
+const es = require('event-stream')
+const { assert, exec, tools } = require('../utils')
 describe('Login', function () {
   this.timeout(4000)
 
@@ -15,9 +17,9 @@ describe('Login', function () {
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password foobarbaz1`
       const proc = exec(command)
       const messages = []
-      proc.stdout.on('data', (data) => {
-        messages.push(JSON.parse(data).msg)
-      })
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        messages.push(data.msg)
+      }))
 
       proc.on('exit', () => {
         assert.ok(messages.includes('Credentials invalid'))
@@ -35,9 +37,9 @@ describe('Login', function () {
       const messages = []
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password ${tools.getPassword()}`
       const proc = exec(command)
-      proc.stdout.on('data', (msg) => {
-        messages.push(JSON.parse(msg).msg)
-      })
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        messages.push(data.msg)
+      }))
       proc.on('exit', () => {
         assert.ok(messages.includes('Login successful'), 'Login was successful')
         try {
