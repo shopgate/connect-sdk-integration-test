@@ -12,7 +12,44 @@ describe('Login', function () {
     return tools.cleanup()
   })
 
-  it('should not be possible to login with wrong credentials', (done) => {
+  it('should give an error when no credentials were entered ', (done) => {
+    try {
+      const command = `${tools.getExecutable()} login --username --password`
+      const proc = exec(command)
+      const messages = []
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        messages.push(data.msg)
+      }))
+
+      proc.on('exit', () => {
+        assert.ok(messages.includes('Login failed'))
+        done()
+      })
+    } catch (error) {
+      assert.ok(error)
+      done()
+    }
+  })
+
+  it('should give an error when username is unknown', (done) => {
+    try {
+      const command = `${tools.getExecutable()} login --username superbaddassusernam@somerandomcorp.com --password secret`
+      const proc = exec(command)
+      const messages = []
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        messages.push(data.msg)
+      }))
+
+      proc.on('exit', () => {
+        assert.ok(messages.includes('Credentials invalid'))
+        done()
+      })
+    } catch (error) {
+      assert.ok(error)
+      done()
+    }
+  })
+  it('should give an error when password is wrong', (done) => {
     try {
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password foobarbaz1`
       const proc = exec(command)
@@ -26,7 +63,6 @@ describe('Login', function () {
         done()
       })
     } catch (error) {
-      console.log(error)
       assert.ok(error)
       done()
     }

@@ -7,6 +7,7 @@ const exec = require('child_process').exec
 const execPromise = util.promisify(require('child_process').exec)
 const JSONStream = require('JSONStream')
 const es = require('event-stream')
+const hasher = require('folder-hash')
 
 class IntegrationTestUtils {
   constructor () {
@@ -80,6 +81,10 @@ class IntegrationTestUtils {
     return execPromise(`${this.getExecutable()} login --username ${username || this.getUsername()} --password ${password || this.getPassword()}`)
   }
 
+  async logout () {
+    return execPromise(`${this.getExecutable()} logout`)
+  }
+
   async initApp (appId) {
     return execPromise(`${this.getExecutable()} init --appId ${appId || this.getAppId()}`)
   }
@@ -117,6 +122,10 @@ class IntegrationTestUtils {
     } catch (err) {
       return {}
     }
+  }
+
+  async getDirectoryHash () {
+    return hasher.hashElement(this.workingDir)
   }
 
   getWorkingDirRel () {
