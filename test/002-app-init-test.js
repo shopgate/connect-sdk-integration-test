@@ -1,4 +1,6 @@
-const {assert, exec, tools} = require('../utils')
+const JSONStream = require('JSONStream')
+const es = require('event-stream')
+const { assert, exec, tools } = require('../utils')
 
 describe('App init', () => {
   beforeEach(async () => {
@@ -16,14 +18,9 @@ describe('App init', () => {
       const command = `${tools.getExecutable()} init --appId ${tools.getAppId()}`
       const proc = exec(command)
       const messages = []
-      proc.stdout.on('data', (data) => {
-        try {
-          const message = JSON.parse(data).msg
-          messages.push(message)
-        } catch (err) {
-          messages.push(data)
-        }
-      })
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+        messages.push(data.msg)
+      }))
 
       proc.on('exit', (code) => {
         assert.equal(code, 0)

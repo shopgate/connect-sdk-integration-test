@@ -1,4 +1,4 @@
-const {assert, tools, utils} = require('../utils')
+const { assert, tools, utils } = require('../utils')
 const request = require('request')
 
 describe('Unattached pipeline calls', function () {
@@ -66,7 +66,7 @@ describe('Unattached pipeline calls', function () {
 
     request.post(options, (err, res, body) => {
       assert.ifError(err)
-      assert.deepEqual(body, {url: ''})
+      assert.deepEqual(body, { url: '' })
       done()
     })
   })
