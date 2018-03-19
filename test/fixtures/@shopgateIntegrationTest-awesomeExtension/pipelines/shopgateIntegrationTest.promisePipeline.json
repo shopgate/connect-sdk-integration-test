@@ -1,0 +1,22 @@
+{
+    "version": "1",
+    "pipeline": {
+      "id": "shopgateIntegrationTest.promisePipeline",
+      "public": true,
+      "input": [],
+      "output": [
+        {"key": "messages", "id": "1030", "optional": true}
+      ],
+      "steps": [
+        {
+          "type": "extension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/promiseReturn.js",
+          "input": [],
+          "output": [
+            {"key": "messages", "id": "1030", "optional": true}
+          ]
+        }
+      ]
+    }
+  }

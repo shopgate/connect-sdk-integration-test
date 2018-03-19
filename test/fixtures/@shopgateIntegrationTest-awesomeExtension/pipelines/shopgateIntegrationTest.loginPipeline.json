@@ -1,0 +1,34 @@
+{
+    "version": "1",
+    "pipeline": {
+      "trusted": true,
+      "id": "shopgateIntegrationTest.loginPipeline",
+      "public": true,
+      "input": [
+      ],
+      "output": [
+        {"key": "success", "id": "1030"}
+      ],
+      "steps": [
+        {
+          "type": "extension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/login.js",
+          "input": [],
+          "output": [
+            {"key": "userId", "id": "1050"},
+            {"key": "success", "id": "1030"}
+          ]
+        },
+        {
+          "type": "auth",
+          "input": [
+            {"key": "userId", "id": "1050", "optional": true}
+          ],
+          "output": [
+            {"key": "success", "id": "1030"}
+          ]
+        }
+      ]
+    }
+  }

@@ -1,0 +1,71 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "shopgateIntegrationTest.setStorageDataPipeline",
+    "public": true,
+    "trusted": true,
+    "input": [
+      {
+        "key": "device",
+        "id": "5555"
+      },
+      {
+        "key": "extension",
+        "id": "6666"
+      },
+      {
+        "key": "user",
+        "id": "7777"
+      }
+    ],
+    "output": [
+      {
+        "key": "device",
+        "id": "5555"
+      },
+      {
+        "key": "extension",
+        "id": "6666"
+      },
+      {
+        "key": "user",
+        "id": "7777"
+      }
+    ],
+    "steps": [
+      {
+        "type": "extension",
+        "id": "@shopgateIntegrationTest/awesomeExtension",
+        "path": "@shopgateIntegrationTest/awesomeExtension/setStorageData.js",
+        "input": [
+          {
+            "key": "device",
+            "id": "5555"
+          },
+          {
+            "key": "extension",
+            "id": "6666"
+          },
+          {
+            "key": "user",
+            "id": "7777"
+          }
+        ],
+        "output": [
+          {
+            "key": "device",
+            "id": "5555"
+          },
+          {
+            "key": "extension",
+            "id": "6666"
+          },
+          {
+            "key": "user",
+            "id": "7777"
+          }
+        ]
+      }
+    ]
+  }
+}

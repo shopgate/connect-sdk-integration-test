@@ -1,0 +1,27 @@
+{
+    "version": "1",
+    "pipeline": {
+      "id": "shopgateIntegrationTest.getDcDataPipeline",
+      "public": true,
+      "trusted": true,
+      "input": [
+      ],
+      "output": [
+        { "key": "deviceInfo", "id": "555", "optional": true },
+            { "key": "appInfo", "id": "666", "optional": true }
+      ],
+      "steps": [
+        {
+          "type": "extension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/getDcInfo.js",
+          "input": [
+          ],
+          "output": [
+            { "key": "deviceInfo", "id": "555", "optional": true },
+            { "key": "appInfo", "id": "666", "optional": true }
+          ]
+        }
+      ]
+    }
+  }

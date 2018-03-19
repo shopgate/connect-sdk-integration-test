@@ -32,7 +32,6 @@ describe('App init', () => {
         })
 
         proc.stderr.on('data', (err) => {
-          console.log(err)
           assert.ifError(err)
           done()
         })
@@ -42,7 +41,7 @@ describe('App init', () => {
       }
     })
   })
-  it.only('should create all subfolders in the application directory', function (done) {
+  it('should create all subfolders in the application directory', function (done) {
     this.timeout(5000)
     try {
       const command = `${tools.getExecutable()} init --appId ${tools.getAppId()}`
@@ -56,12 +55,12 @@ describe('App init', () => {
         assert.equal(code, 0)
         assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
 
-        readdir(tools.getAppSettingsFolder(), (err, dirs) => {
+        readdir(tools.getProjectFolder(), (err, dirs) => {
           if (err) return assert.ifError(err)
 
-          dirs.map(name => path.join(tools.getAppSettingsFolder(), name))
+          dirs.map(name => path.join(tools.getProjectFolder(), name))
             .filter(async source => (lstatSync(source).isDirectory()))
-            .map(name => name.replace(path.join(tools.getAppSettingsFolder(), '/'), ''))
+            .map(name => name.replace(path.join(tools.getProjectFolder(), '/'), ''))
 
           const checks = ['.sgcloud', 'themes', 'extensions', 'pipelines', 'trustedPipelines']
 
@@ -96,7 +95,7 @@ describe('App init', () => {
 
         proc.on('exit', async (code) => {
           assert.equal(code, 0)
-          const app = await fsEx.readJson(path.join(tools.appSettingsFolder, '.sgcloud', 'app.json'))
+          const app = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'app.json'))
           assert.ok(asked, 'Asked if reinit should be done')
           assert.equal(app.id, tools.getAppId())
           done()
@@ -129,7 +128,7 @@ describe('App init', () => {
 
         proc.on('exit', async (code) => {
           assert.equal(code, 0)
-          const app = await fsEx.readJson(path.join(tools.appSettingsFolder, '.sgcloud', 'app.json'))
+          const app = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'app.json'))
           assert.ok(asked, 'Asked if reinit should be done')
           assert.deepEqual(hash, await tools.getDirectoryHash())
           assert.equal(app.id, tools.getAppId())

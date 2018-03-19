@@ -9,3 +9,4 @@ package-lock.json
 .vscode/
 .env
 test_environment
+coverage

@@ -22,7 +22,6 @@ describe('Backend Start', function () {
   })
 
   it('should be possible to start the backend', function (done) {
-    // noinspection JSPotentiallyInvalidUsageOfThis
     this.timeout(30000)
     try {
       let killed = false
