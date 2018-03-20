@@ -46,15 +46,34 @@ class IntegrationTestUtils {
     if (await fsEx.pathExists(this.appSettingsFolder)) {
       await fsEx.emptyDir(this.appSettingsFolder)
       await fsEx.rmdir(this.appSettingsFolder)
-      await fsEx.emptyDir(this.workingDir)
-      await fsEx.rmdir(this.workingDir)
     }
 
     if (await fsEx.pathExists(this.userSettingsFolder)) {
       await fsEx.emptyDir(this.userSettingsFolder)
       await fsEx.rmdir(this.userSettingsFolder)
     }
+
     process.chdir(this.getRootDir())
+    await fsEx.emptyDir(this.workingDir)
+    await fsEx.rmdir(this.workingDir)
+  }
+
+  execWithTimeout (command, timeout = 5000) {
+    const proc = exec(command)
+    const to = setTimeout(() => {
+      if (!proc.isKilled) {
+        if (/^win/.test(process.platform)) {
+          proc.kill()
+        } else {
+          process.kill(proc.pid, 'SIGINT')
+        }
+      }
+    }, timeout)
+    proc.on('exit', () => {
+      proc.isKilled = true
+      clearTimeout(to)
+    })
+    return proc
   }
 
   getAppSettingsFolder () {
@@ -86,17 +105,31 @@ class IntegrationTestUtils {
   }
 
   async login (username, password) {
-    return execPromise(`${this.getExecutable()} login --username ${username || this.getUsername()} --password ${password || this.getPassword()}`,
-      { 'cwd': this.getProjectFolder() }
-    )
+    return new Promise(resolve => {
+      const cmd = `${this.getExecutable()} login --username ${username || this.getUsername()} --password ${password || this.getPassword()}`
+      const proc = this.execWithTimeout(cmd, 5000)
+      proc.on('exit', () => {
+        console.log('exit')
+        resolve()
+      })
+    })
   }
 
   async logout () {
-    return execPromise(`${this.getExecutable()} logout`, { 'cwd': this.getProjectFolder() })
+    return new Promise(resolve => {
+      const cmd = `${this.getExecutable()} logout`
+      const proc = this.execWithTimeout(cmd, 1000)
+      proc.on('exit', () => {
+        resolve()
+      })
+    })
   }
 
   async initApp (appId) {
-    return execPromise(`${this.getExecutable()} init --appId ${appId || this.getAppId()}`, { 'cwd': this.getProjectFolder() })
+    return new Promise(resolve => {
+      const cmd = `${this.getExecutable()} init --appId ${appId || this.getAppId()}`
+      this.execWithTimeout(cmd, 2000)
+    })
   }
 
   async getBackendProcess (username, password, appId) {

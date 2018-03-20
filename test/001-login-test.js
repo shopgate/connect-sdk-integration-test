@@ -68,14 +68,18 @@ describe('Login', function () {
     }
   })
 
-  it('should  be possible to login with correct credentials', (done) => {
+  it('should  be possible to login with correct credentials', function (done) {
     try {
       const messages = []
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password ${tools.getPassword()}`
-      const proc = exec(command)
+      const proc = tools.execWithTimeout(command)
+
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
         messages.push(data.msg)
       }))
+
+      proc.stderr.on('data', console.log)
+
       proc.on('exit', () => {
         assert.ok(messages.includes('Login successful'), 'Login was successful')
         try {

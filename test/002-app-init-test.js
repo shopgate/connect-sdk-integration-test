@@ -45,18 +45,21 @@ describe('App init', () => {
     this.timeout(5000)
     try {
       const command = `${tools.getExecutable()} init --appId ${tools.getAppId()}`
-      const proc = exec(command)
+      const proc = tools.execWithTimeout(command, 5000)
       const messages = []
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
         messages.push(data.msg)
+
+        if (messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`)) {
+          proc.kill()
+          validate()
+        }
       }))
 
-      proc.on('exit', (code) => {
-        assert.equal(code, 0)
-        assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
-
+      const validate = () => {
         readdir(tools.getProjectFolder(), (err, dirs) => {
           if (err) return assert.ifError(err)
+          if (!dirs.length) assert.fail('no directories found')
 
           dirs.map(name => path.join(tools.getProjectFolder(), name))
             .filter(async source => (lstatSync(source).isDirectory()))
@@ -64,11 +67,10 @@ describe('App init', () => {
 
           const checks = ['.sgcloud', 'themes', 'extensions', 'pipelines', 'trustedPipelines']
 
-          if (!dirs.length) assert.fail('no directories found')
           checks.forEach(check => assert.ok(dirs.includes(check), '.sgloud exists'))
           done()
         })
-      })
+      }
 
       proc.stderr.on('data', (err) => {
         assert.ifError(err)

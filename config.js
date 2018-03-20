@@ -13,9 +13,7 @@ envs.forEach((key) => {
   if (!config[key]) throw new Error('Missing env: ' + key)
 })
 
-if (false) {
-  config.executable = resolvePath(config.executable)
-}
+config.executable = resolvePath(config.executable)
 
 intercept(function (txt) {
   let filtered = txt
