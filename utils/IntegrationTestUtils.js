@@ -32,22 +32,22 @@ class IntegrationTestUtils {
   }
 
   async setup () {
+
+    process.chdir(this.getRootDir())
     await fsEx.mkdirp(this.getWorkingDirRel())
     await fsEx.mkdirp(this.appSettingsFolder)
     await fsEx.mkdirp(this.userSettingsFolder)
-    process.chdir(this.getRootDir())
     process.chdir(this.getWorkingDirRel())
     process.env.APP_PATH = process.cwd()
   }
 
   async cleanup () {
+    await this.logout()
     process.chdir(this.getRootDir())
     process.chdir(this.getWorkingDirRel())
     if (await fsEx.pathExists(this.appSettingsFolder)) {
       await fsEx.emptyDir(this.appSettingsFolder)
       await fsEx.rmdir(this.appSettingsFolder)
-      await fsEx.emptyDir(this.workingDir)
-      await fsEx.rmdir(this.workingDir)
     }
 
     if (await fsEx.pathExists(this.userSettingsFolder)) {
@@ -55,6 +55,8 @@ class IntegrationTestUtils {
       await fsEx.rmdir(this.userSettingsFolder)
     }
     process.chdir(this.getRootDir())
+    await fsEx.emptyDir(this.workingDir)
+   // await fsEx.rmdir(this.workingDir)
   }
 
   getAppSettingsFolder () {
@@ -110,13 +112,14 @@ class IntegrationTestUtils {
       timeout = setTimeout(() => {
         proc.stdout.removeAllListeners()
         reject(new Error('Backend did not start properly'))
-      }, 10000)
+      }, 20000)
 
       // Backend started properly
       let backendPid
 
       try {
         proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+          console.log(data)
           if (!backendPid && data.pid) backendPid = data.pid
 
           if (data.msg.includes('Backend ready')) {

@@ -56,7 +56,6 @@ describe('Backend Start', function () {
       })
 
       proc.on('exit', (code) => {
-        assert.equal(code, 0)
         assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message.')
         done()
       })
