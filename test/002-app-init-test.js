@@ -42,7 +42,6 @@ describe('App init', () => {
     })
   })
   it('should create all subfolders in the application directory', function (done) {
-    
     try {
       const command = `${tools.getExecutable()} init --appId ${tools.getAppId()}`
       const proc = exec(command)

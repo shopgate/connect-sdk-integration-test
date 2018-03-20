@@ -2,8 +2,6 @@ const JSONStream = require('JSONStream')
 const es = require('event-stream')
 const { assert, exec, tools } = require('../utils')
 describe('Login', function () {
-  this.timeout(4000)
-
   beforeEach(async () => {
     return tools.setup()
   })
