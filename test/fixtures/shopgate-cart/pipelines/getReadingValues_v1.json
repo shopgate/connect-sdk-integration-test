@@ -1,0 +1,64 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "getReadingValues_v1",
+    "public": true,
+    "input": [
+      {
+        "key": "device",
+        "id": "100"
+      },
+      {
+        "key": "reading",
+        "id": "101"
+      },
+      {
+        "key": "fromTimestamp",
+        "id": "102"
+      },
+      {
+        "key": "toTimestamp",
+        "id": "103",
+        "optional": true
+      }
+    ],
+    "output": [
+      {
+        "key": "readingValues",
+        "id": "1000"
+      }
+    ],
+    "steps": [
+      {
+        "type": "extension",
+        "id": "@massive-apps/weather-station-api",
+        "path": "@massive-apps/weather-station-api/lib/getReadingValues.js",
+        "input": [
+          {
+            "key": "device",
+            "id": "100"
+          },
+          {
+            "key": "reading",
+            "id": "101"
+          },
+          {
+            "key": "fromTimestamp",
+            "id": "102"
+          },
+          {
+            "key": "toTimestamp",
+            "id": "103",
+            "optional": true
+          }
+        ],
+        "output": [
+          {
+            "key": "readingValues",
+            "id": "1000"
+          }
+        ]
+      }
+    ]
+  }
+}
