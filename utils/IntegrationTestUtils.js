@@ -54,6 +54,7 @@ class IntegrationTestUtils {
     }
 
     process.chdir(this.getRootDir())
+    await new Promise(resolve => (setTimeout(resolve, 100)))
     await fsEx.emptyDir(this.workingDir)
     await fsEx.rmdir(this.workingDir)
   }
