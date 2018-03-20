@@ -1,0 +1,6 @@
+{
+  "requestTimeout": "30000",
+  "fhemApiUrl": "http://ebuuk.selfhost.eu:8337",
+  "basicAuthUsername": "iYHzFHqkHZMoxt",
+  "basicAuthPassword": "DmfJaHWPybpcgWgEgnZr"
+}

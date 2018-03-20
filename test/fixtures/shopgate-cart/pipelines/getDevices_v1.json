@@ -1,0 +1,28 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "getDevices_v1",
+    "public": true,
+    "input": [],
+    "output": [
+      {
+        "key": "devices",
+        "id": "1000"
+      }
+    ],
+    "steps": [
+      {
+        "type": "extension",
+        "id": "@massive-apps/weather-station-api",
+        "path": "@massive-apps/weather-station-api/lib/getDevices.js",
+        "input": [],
+        "output": [
+          {
+            "key": "devices",
+            "id": "1000"
+          }
+        ]
+      }
+    ]
+  }
+}

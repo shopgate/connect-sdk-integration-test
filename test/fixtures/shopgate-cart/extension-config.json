@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "id": "@massive-apps/weather-station-api",
+  "steps": [],
+  "configuration": {
+    "requestTimeout": {
+      "type": "static",
+      "destination": "backend",
+      "params": {
+        "value": "30000"
+      }
+    }
+  }
+}
