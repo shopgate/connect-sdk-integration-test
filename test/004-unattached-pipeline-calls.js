@@ -10,6 +10,7 @@ describe('Unattached pipeline calls', function () {
     await tools.login()
     await tools.initApp()
     backendProcessPid = await tools.getBackendProcess()
+    console.log(backendProcessPid)
   })
 
   afterEach(async () => {
