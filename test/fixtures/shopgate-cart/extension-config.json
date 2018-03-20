@@ -1,13 +1,13 @@
 {
-  "version": "0.1.0",
-  "id": "@massive-apps/weather-station-api",
-  "steps": [],
+  "version": "1.0.0",
+  "id": "@shopgate/cart",
+
   "configuration": {
-    "requestTimeout": {
+    "cakeUrl": {
       "type": "static",
       "destination": "backend",
       "params": {
-        "value": "30000"
+        "value": "https://rapid-php.shopgate.com"
       }
     }
   }
