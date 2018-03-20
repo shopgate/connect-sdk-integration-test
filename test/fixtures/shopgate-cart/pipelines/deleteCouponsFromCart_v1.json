@@ -1,0 +1,28 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "deleteCouponsFromCart_v1",
+    "public": true,
+    "input": [
+      {"key": "sgxsMeta", "id": "1010", "optional": true},
+      {"key": "couponCodes", "id": "1020"}
+    ],
+    "output": [
+      {"key": "messages", "id": "1030", "optional": true}
+    ],
+    "steps": [
+      {
+        "type": "extension",
+        "id": "@shopgate/cart",
+        "path": "@shopgate/cart/cart/deleteCouponsFromCart_v1.js",
+        "input": [
+          {"key": "sgxsMeta", "id": "1010", "optional": true},
+          {"key": "couponCodes", "id": "1020", "optional": true}
+        ],
+        "output": [
+          {"key": "messages", "id": "1030", "optional": true}
+        ]
+      }
+    ]
+  }
+}

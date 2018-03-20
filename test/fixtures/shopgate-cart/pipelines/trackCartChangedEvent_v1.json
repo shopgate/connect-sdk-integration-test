@@ -1,0 +1,49 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "trackCartChangedEvent_v1",
+    "public": true,
+    "input": [
+      {"key": "sgxsMeta", "id": "1", "optional": true}
+    ],
+    "output": [],
+    "steps": [
+      {
+        "type": "pipeline",
+        "id": "getCart_v1",
+        "input": [
+          {"key": "sgxsMeta", "id": "1", "optional": true}
+        ],
+        "output": [
+          {"key": "totals", "id": "3"}
+        ]
+      },
+      {
+        "type": "extension",
+        "id": "@shopgate/cart",
+        "path": "@shopgate/cart/event/getEventData.js",
+        "input": [
+          {"key": "totals", "id": "3"}
+        ],
+        "output": [
+          {"key": "eventData", "id": "4"}
+        ]
+      },
+      {
+        "type": "staticValue",
+        "input": [],
+        "values": [{"key": "eventType", "value": "cartChanged"}],
+        "output": [{"key": "eventType", "id": "2"}]
+      },
+      {
+        "type": "pipeline",
+        "id": "trackEvent_v1",
+        "input": [
+          { "key": "type", "id": "2" },
+          { "key": "data", "id": "4"}
+        ],
+        "output": []
+      }
+    ]
+  }
+}
