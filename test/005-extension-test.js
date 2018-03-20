@@ -22,7 +22,7 @@ describe('Extension Action', function () {
     if (existingPid) {
       try {
         process.kill(backendProcessPid, 'SIGINT')
-      } catch(err) {
+      } catch (err) {
         console.log(err)
       }
     }
@@ -38,12 +38,10 @@ describe('Extension Action', function () {
     const messages = []
 
     proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-      console.log(data)
       messages.push(data.msg)
     }))
 
     proc.on('exit', (code) => {
-      
       assert.ok(messages.includes('Downloading boilerplate ... done'), 'should have downloaded boilerplate')
       assert.ok(messages.includes('Updating backend files ... done'), 'should have updated backend files')
       assert.ok(messages.includes('Installing frontend depenencies ...'), 'should have installed frontend dependencies')
@@ -69,14 +67,11 @@ describe('Extension Action', function () {
       const appConfigJson = async () => (fsEx.readJson(path.join(tools.getProjectFolder(), 'extensions', 'testing-manual', 'extension', 'config.json')))
 
       proc.on('exit', async (code, signal) => {
-        console.log(code)
         await (new Promise(resolve => (setTimeout(resolve, 500))))
-        console.log(messages)
         assert.ok(messages.includes('Attached @shopgate/cart (testing-manual)'), 'should log attachment of extension')
 
         setTimeout(() => {
           appConfigJson().then(appConfig => {
-            console.log(appConfig)
             assert.equal(appConfig.cakeUrl, 'extension_config_original', 'should overwrite the extensions config.json')
             done()
           })
