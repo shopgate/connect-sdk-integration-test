@@ -179,7 +179,7 @@ describe('Attached pipeline calls', function () {
     })
   }
 
-  it.only('should login before accessing user storage', function (done) {
+  it('should login before accessing user storage', function (done) {
     login(async () => {
       const data = {
       }
@@ -195,7 +195,7 @@ describe('Attached pipeline calls', function () {
     })
   })
 
-  it.only('should be possible to read from and write to storage', function (done) {
+  it('should be possible to read from and write to storage', function (done) {
     login(async () => {
       const data = {
         device: 'deviceValue',
@@ -221,7 +221,7 @@ describe('Attached pipeline calls', function () {
     })
   })
 
-  it.only('should be possible to delete from storage', function (done) {
+  it('should be possible to delete from storage', function (done) {
     const ex = async (done) => {
       const options = {
         url: 'http://localhost:8813/trustedPipelines/shopgateIntegrationTest.deleteStorageDataPipeline',
@@ -248,7 +248,7 @@ describe('Attached pipeline calls', function () {
     login(() => (ex(done)))
   })
 
-  it.only('should give app and device info', function (done) {
+  it('should give app and device info', function (done) {
     const options = {
       url: 'http://localhost:8813/trustedPipelines/shopgateIntegrationTest.getDcDataPipeline',
       json: {}
