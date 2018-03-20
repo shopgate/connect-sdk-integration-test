@@ -112,7 +112,7 @@ describe('App init', () => {
     })
   })
 
-  it.only('should not remove any files when user aborts the reinit', function (done) {
+  it('should not remove any files when user aborts the reinit', function (done) {
     tools.initApp(tools.getAppId()).then(async () => {
       try {
         const hash = await tools.getDirectoryHash()

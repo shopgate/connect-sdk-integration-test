@@ -19,16 +19,19 @@ describe('Extension Action', function () {
 
   afterEach(async () => {
     const existingPid = await processExists(backendProcessPid)
-    if(existingPid) {
-	process.kill(backendProcessPid, 'SIGINT')
+    if (existingPid) {
+      try {
+        process.kill(backendProcessPid, 'SIGINT')
+      } catch(err) {
+        console.log(err)
+      }
     }
 
-    console.log(existingPid)
     await utils.processWasKilled(backendProcessPid)
     return tools.cleanup()
   })
 
-  it.skip('should create default structure on extension create and install frontend dependencies', function (done) {
+  it('should create default structure on extension create and install frontend dependencies', function (done) {
     this.timeout(420000)
     const command = `${tools.getExecutable()} extension create frontend backend --extension @shopgateIntegrationTest/myAwesomExtension --trusted true`
     const proc = exec(command)
@@ -57,19 +60,14 @@ describe('Extension Action', function () {
       await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', 'shopgate-cart'), testExtensionFolder)
       const command = `${tools.getExecutable()} extension attach`
 
-      console.log(testExtensionFolder)
       const proc = exec(command)
       const messages = []
       proc.stdout.on('data', data => {
-        console.log(data)
         messages.push(JSON.parse(data).msg)
       })
 
       const appConfigJson = async () => (fsEx.readJson(path.join(tools.getProjectFolder(), 'extensions', 'testing-manual', 'extension', 'config.json')))
 
-      proc.stderr.on('data', data => {
-        console.log('error', data)
-      })
       proc.on('exit', async (code, signal) => {
         console.log(code)
         await (new Promise(resolve => (setTimeout(resolve, 500))))
@@ -78,6 +76,7 @@ describe('Extension Action', function () {
 
         setTimeout(() => {
           appConfigJson().then(appConfig => {
+            console.log(appConfig)
             assert.equal(appConfig.cakeUrl, 'extension_config_original', 'should overwrite the extensions config.json')
             done()
           })
@@ -100,7 +99,6 @@ describe('Extension Action', function () {
         messages.push(data.msg)
       }))
 
-      proc.stderr.on('data', console.log)
       proc.on('exit', async (code, signal) => {
         assert.ok(messages.includes('Attached @shopgate/cart (testing-manual)'), 'should log attachment of extension')
 

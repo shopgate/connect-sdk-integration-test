@@ -7,7 +7,7 @@
       "type": "static",
       "destination": "backend",
       "params": {
-        "value": "https://rapid-php.shopgate.com"
+        "value": "extension_config_original"
       }
     }
   }
