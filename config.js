@@ -14,7 +14,6 @@ envs.forEach((key) => {
 })
 
 config.executable = `${resolvePath(config.executable)}`
-console.log(config)
 intercept(function (txt) {
   let filtered = txt
   envs.forEach(key => {

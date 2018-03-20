@@ -32,7 +32,6 @@ class IntegrationTestUtils {
   }
 
   async setup () {
-
     process.chdir(this.getRootDir())
     await fsEx.mkdirp(this.getWorkingDirRel())
     await fsEx.mkdirp(this.appSettingsFolder)
@@ -56,7 +55,7 @@ class IntegrationTestUtils {
     }
     process.chdir(this.getRootDir())
     await fsEx.emptyDir(this.workingDir)
-   // await fsEx.rmdir(this.workingDir)
+    // await fsEx.rmdir(this.workingDir)
   }
 
   getAppSettingsFolder () {
@@ -119,7 +118,6 @@ class IntegrationTestUtils {
 
       try {
         proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-          console.log(data)
           if (!backendPid && data.pid) backendPid = data.pid
 
           if (data.msg.includes('Backend ready')) {
