@@ -7,7 +7,6 @@ const { assert, exec, tools, utils } = require('../utils')
 
 describe('Invalid Pipeline', () => {
   beforeEach(async function () {
-    this.timeout(10000)
     await tools.setup()
     await tools.login()
     await tools.initApp()
@@ -18,7 +17,6 @@ describe('Invalid Pipeline', () => {
   })
 
   it('should throw an error, if an invalid pipeline is within the extension to be attached', async function () {
-    this.timeout(20000)
     const extensionFolder = '@shopgateIntegrationTest-invalidExtension'
     const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', extensionFolder)
     await fsEx.mkdirp(testExtensionFolder)

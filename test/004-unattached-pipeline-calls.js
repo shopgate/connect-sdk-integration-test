@@ -1,5 +1,6 @@
 const { assert, tools, utils } = require('../utils')
 const request = require('request')
+const processExists = require('process-exists')
 
 describe('Unattached pipeline calls', function () {
   let backendProcessPid
@@ -12,8 +13,16 @@ describe('Unattached pipeline calls', function () {
   })
 
   afterEach(async () => {
-    process.kill(backendProcessPid, "SIGINT")
-    await utils.processWasKilled(backendProcessPid)
+    if (await processExists(backendProcessPid)) {
+      try {
+        process.kill(backendProcessPid, 'SIGINT')
+      } catch(err) {
+        console.log(err)
+      }
+
+      await utils.processWasKilled(backendProcessPid)
+      backendProcessPid = null
+    }
     return tools.cleanup()
   })
 
