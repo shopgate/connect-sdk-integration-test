@@ -8,7 +8,7 @@ const processExists = require('process-exists')
 function processWasKilled (pid) {
   return new Promise((resolve, reject) => {
     async.retry({
-      times: 10,
+      times: 30,
       interval: 100
     }, (cb) => {
       processExists(pid)

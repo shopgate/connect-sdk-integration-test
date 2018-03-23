@@ -64,7 +64,6 @@ describe('Frontend Setup', function () {
 
     proc.stderr.on('data' ,console.log)
     proc.on('exit', (code, signal) => {
-      console.log(code, signal)
       assert.ok(messages.includes('SUCCESSS: Your ShopgateCloud project is now ready!'), 'Should have been a success')
 
       fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'frontend.json')).then(frontendJson => {

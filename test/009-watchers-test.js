@@ -4,6 +4,7 @@ const JSONStream = require('JSONStream')
 const es = require('event-stream')
 const path = require('path')
 const fsEx = require('fs-extra')
+const processExists = require('process-exists')
 
 describe('Attached pipeline calls', function () {
   let backendProcessPid
@@ -17,8 +18,16 @@ describe('Attached pipeline calls', function () {
   })
 
   afterEach(async () => {
-    process.kill(backendProcessPid, 'SIGINT')
-    await utils.processWasKilled(backendProcessPid)
+    if (await processExists(backendProcessPid)) {
+      try {
+        process.kill(backendProcessPid, 'SIGINT')
+      } catch(err) {
+        console.log(err)
+      }
+
+      await utils.processWasKilled(backendProcessPid)
+      backendProcessPid = null
+    }
     return tools.cleanup()
   })
 

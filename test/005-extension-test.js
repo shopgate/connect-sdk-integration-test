@@ -21,7 +21,7 @@ describe('Extension Action', function () {
     const existingPid = await processExists(backendProcessPid)
     if (existingPid) {
       try {
-        process.kill(backendProcessPid, 'SIGINT')
+        process.kill(backendProcessPid, 'SIGKILL')
       } catch (err) {
         console.log(err)
       }
