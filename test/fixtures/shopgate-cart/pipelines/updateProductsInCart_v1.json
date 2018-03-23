@@ -1,0 +1,34 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "updateProductsInCart_v1",
+    "public": true,
+    "input": [
+      {"key": "sgxsMeta", "id": "1010", "optional": true},
+      {"key": "CartItem", "id": "1020"}
+    ],
+    "output": [
+      {"key": "messages", "id": "1030", "optional": true}
+    ],
+    "steps": [
+      {
+        "type": "extension",
+        "id": "@shopgate/cart",
+        "path": "@shopgate/cart/cart/updateProductsInCart_v1.js",
+        "input": [
+          {"key": "sgxsMeta", "id": "1010", "optional": true},
+          {"key": "CartItem", "id": "1020", "optional": true}
+        ],
+        "output": [
+          {"key": "messages", "id": "1030", "optional": true}
+        ]
+      },
+      {
+        "type": "pipeline",
+        "id": "trackCartChangedEvent_v1",
+        "input": [{"key": "sgxsMeta", "id": "1010", "optional": true}],
+        "output": []
+      }
+    ]
+  }
+}

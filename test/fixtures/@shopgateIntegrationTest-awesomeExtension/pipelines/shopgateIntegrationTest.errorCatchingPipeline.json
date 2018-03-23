@@ -1,0 +1,84 @@
+{
+    "version": "1",
+    "pipeline": {
+      "id": "shopgateIntegrationTest.errorCatchingPipeline",
+      "public": true,
+      "input": [
+        {
+          "key": "pipeline1Foo",
+          "id": "input1"
+        }
+      ],
+      "output": [
+        {
+          "key": "pipeline1Bar",
+          "id": "output4"
+        }
+      ],
+      "steps": [
+        {
+          "type": "extension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/catchMe.js",
+          "input": [
+            {
+              "key": "exPipeline1Foo",
+              "id": "input1"
+            }
+          ],
+          "output": [
+            {
+              "key": "extensionBar",
+              "id": "output2"
+            }
+          ]
+        },
+        {
+          "type": "errorCatchExtension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/dontCatchPromise.js",
+          "input": [
+            {
+              "key": "exPipeline2Foo",
+              "id": "output2",
+              "optional": true
+            },
+            {
+              "key": "exPipeline1Foo",
+              "id": "input1",
+              "optional": true
+            }
+          ],
+          "output": [
+            {
+              "key": "extensionBar",
+              "id": "output3"
+            }
+          ]
+        },
+        {
+          "type": "errorCatchExtension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/catchPromise.js",
+          "input": [
+            {
+              "key": "exPipeline2Foo",
+              "id": "output3",
+              "optional": true
+            },
+            {
+              "key": "exPipeline1Foo",
+              "id": "input1",
+              "optional": true
+            }
+          ],
+          "output": [
+            {
+              "key": "extensionBar",
+              "id": "output4"
+            }
+          ]
+        }
+      ]
+    }
+  }

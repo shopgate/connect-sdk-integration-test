@@ -1,0 +1,23 @@
+{
+    "version": "1",
+    "pipeline": {
+      "id": "shopgateIntegrationTest.deleteStorageDataPipeline",
+      "public": true,
+      "trusted": true,
+      "input": [
+      ],
+      "output": [
+      ],
+      "steps": [
+        {
+          "type": "extension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/deleteStorageData.js",
+          "input": [
+          ],
+          "output": [
+          ]
+        }
+      ]
+    }
+  }

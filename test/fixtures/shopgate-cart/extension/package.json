@@ -1,0 +1,34 @@
+{
+  "name": "@shopgate/cart",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.localdev.cc:7999/sgx/shopgate-cart.git"
+  },
+  "scripts": {
+    "test": "JUNIT_REPORT_PATH=build/mocha.xml JUNIT_REPORT_STACK=1 mocha --recursive test -R mocha-jenkins-reporter"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "html-entities": "^1.2.1",
+    "request": "latest",
+    "shopify-api-node": "^2.5.0",
+    "shopify-node-api": "^1.7.6",
+    "underscore": "latest"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "lodash.clonedeep": "^4.5.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2",
+    "mocha-jenkins-reporter": "^0.3.0",
+    "nock": "^9.0.2",
+    "request": "^2.76.0",
+    "rewire": "latest"
+  },
+  "standard": {
+    "env": ["mocha"]
+  }
+}

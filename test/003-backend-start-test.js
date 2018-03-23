@@ -22,7 +22,6 @@ describe('Backend Start', function () {
   })
 
   it('should be possible to start the backend', function (done) {
-    // noinspection JSPotentiallyInvalidUsageOfThis
     this.timeout(30000)
     try {
       let killed = false
@@ -57,7 +56,6 @@ describe('Backend Start', function () {
       })
 
       proc.on('exit', (code) => {
-        assert.equal(code, 0)
         assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message.')
         done()
       })

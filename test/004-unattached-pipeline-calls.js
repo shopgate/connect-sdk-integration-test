@@ -5,7 +5,6 @@ describe('Unattached pipeline calls', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    this.timeout(10000)
     await tools.setup()
     await tools.login()
     await tools.initApp()
@@ -13,12 +12,12 @@ describe('Unattached pipeline calls', function () {
   })
 
   afterEach(async () => {
-    process.kill(backendProcessPid, 'SIGINT')
+    process.kill(backendProcessPid, "SIGINT")
     await utils.processWasKilled(backendProcessPid)
     return tools.cleanup()
   })
 
-  it('should send a pipeline request to the cli-proxy and receive a response', (done) => {
+  it('should send a pipeline request to the cli-proxy and receive a response', function (done) {
     const options = {
       url: 'http://localhost:8813/pipelines/getRootCategories_v1',
       json: {}

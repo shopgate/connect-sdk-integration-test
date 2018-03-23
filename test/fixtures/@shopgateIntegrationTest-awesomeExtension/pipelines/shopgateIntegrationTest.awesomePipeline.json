@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "pipeline": {
+    "id": "shopgateIntegrationTest.awesomePipeline",
+    "public": true,
+    "input": [],
+    "output": [
+      {"key": "messages", "id": "1030", "optional": true}
+    ],
+    "steps": [
+      {
+        "type": "extension",
+        "id": "@shopgateIntegrationTest/awesomeExtension",
+        "path": "@shopgateIntegrationTest/awesomeExtension/awesomeStep.js",
+        "input": [],
+        "output": [
+          {"key": "messages", "id": "1030", "optional": true}
+        ]
+      }
+    ]
+  }
+}

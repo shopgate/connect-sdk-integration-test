@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "id": "@shopgate/cart",
+
+  "configuration": {
+    "cakeUrl": {
+      "type": "static",
+      "destination": "backend",
+      "params": {
+        "value": "extension_config_original"
+      }
+    }
+  }
+}

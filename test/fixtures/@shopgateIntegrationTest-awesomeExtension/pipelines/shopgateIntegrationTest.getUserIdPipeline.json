@@ -1,0 +1,25 @@
+{
+    "version": "1",
+    "pipeline": {
+      "id": "shopgateIntegrationTest.getUserIdPipeline",
+      "public": true,
+      "trusted": true,
+      "input": [
+      ],
+      "output": [
+        { "key": "userId", "id": "10", "optional": true }
+      ],
+      "steps": [
+        {
+          "type": "extension",
+          "id": "@shopgateIntegrationTest/awesomeExtension",
+          "path": "@shopgateIntegrationTest/awesomeExtension/getUserId.js",
+          "input": [
+          ],
+          "output": [
+            { "key": "userId", "id": "10", "optional": true }
+          ]
+        }
+      ]
+    }
+  }
