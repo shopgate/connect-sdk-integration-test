@@ -4,7 +4,7 @@ const fsEx = require('fs-extra')
 const request = require('request')
 const path = require('path')
 const { assert, exec, tools, utils } = require('../utils')
-
+require('longjohn')
 describe('Frontend Setup', function () {
   let backendProcessPid
   before(async () => {
@@ -29,21 +29,30 @@ describe('Frontend Setup', function () {
     const command = `${tools.getExecutable()} frontend setup`
     const proc = exec(command)
     const messages = []
-
+    const answered = []
     proc.stdout.on('data', (data) => {
-      data = data.replace(
-        /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
-      const confirmable = ['Which IP address', 'On which port', 'development sourcemap', 'correct?']
+      
+      const confirmable = ['Which IP address', 'On which port should the app', 
+      'On which port should the Rapid', 'On which port should the HMR',
+      'On which port should the remote', 'development sourcemap', 'correct?']
       let skipLog = false
 
+      
+      
       confirmable.forEach(pattern => {
-        if (data.includes(pattern)) {
+        if (data.includes(pattern) && !answered.includes(pattern)) {
           skipLog = true
-          return proc.stdin.write('\n')
+	        if(data.includes('correct?')) {
+            proc.stdin.write('Y\n')
+	        } else {
+            proc.stdin.write('\n')
+          }
+          answered.push(pattern)
         }
       })
       skipLog = skipLog || /^\s*$/.test(data)
       if (!skipLog) {
+        // console.log(data)
         let message = data
         if (data.startsWith('{')) {
           message = JSON.parse(data).msg
@@ -52,13 +61,16 @@ describe('Frontend Setup', function () {
       }
     })
 
-    proc.on('exit', (code) => {
+
+    proc.stderr.on('data' ,console.log)
+    proc.on('exit', (code, signal) => {
+      console.log(code, signal)
       assert.ok(messages.includes('SUCCESSS: Your ShopgateCloud project is now ready!'), 'Should have been a success')
 
       fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'frontend.json')).then(frontendJson => {
         assert.equal(frontendJson.port, '8080')
         done()
-      })
+      }).catch(err => console.log(err))
     })
   })
 
