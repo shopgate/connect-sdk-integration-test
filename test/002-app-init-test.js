@@ -51,7 +51,7 @@ describe('App init', () => {
       }))
 
       proc.on('exit', (code) => {
-        assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
+       assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
 
         readdir(tools.getProjectFolder(), (err, dirs) => {
           if (err) return assert.ifError(err)
