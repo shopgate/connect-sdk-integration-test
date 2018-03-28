@@ -10,7 +10,6 @@ describe('Extension Action', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    this.timeout(20000)
     await tools.setup()
     await tools.login()
     await tools.initApp()
@@ -18,21 +17,19 @@ describe('Extension Action', function () {
   })
 
   afterEach(async () => {
-    const existingPid = await processExists(backendProcessPid)
-    if (existingPid) {
+    if (await processExists(backendProcessPid)) {
       try {
         process.kill(backendProcessPid, 'SIGKILL')
       } catch (err) {
         console.log(err)
       }
+      await utils.processWasKilled(backendProcessPid)
     }
-
-    await utils.processWasKilled(backendProcessPid)
+    
     return tools.cleanup()
   })
 
   it('should create default structure on extension create and install frontend dependencies', function (done) {
-    this.timeout(420000)
     const command = `${tools.getExecutable()} extension create frontend backend --extension @shopgateIntegrationTest/myAwesomExtension --trusted true`
     const proc = exec(command)
     const messages = []
@@ -51,7 +48,6 @@ describe('Extension Action', function () {
   })
 
   it('should attach extensions and apply its config', function (done) {
-    this.timeout(150000)
     const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', 'testing-manual')
     const ex = async (done) => {
       await fsEx.mkdirp(testExtensionFolder, { mode: '777' })
@@ -82,7 +78,6 @@ describe('Extension Action', function () {
   })
 
   it('should detach extensions', function (done) {
-    this.timeout(150000)
     const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', 'testing-manual')
     const ex = async (done) => {
       await fsEx.mkdirp(testExtensionFolder)

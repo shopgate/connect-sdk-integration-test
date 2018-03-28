@@ -4,12 +4,12 @@ const fsEx = require('fs-extra')
 const request = require('request')
 const path = require('path')
 const { assert, exec, tools, utils } = require('../utils')
+const processExists = require('process-exists')
 const downloadGmdTheme = utils.downloadGmdTheme
 
 describe('Frontend Setup', function () {
   let backendProcessPid
   before(async () => {
-    this.timeout(10000)
     await tools.setup()
     await tools.login()
     await tools.initApp()
@@ -17,16 +17,32 @@ describe('Frontend Setup', function () {
   })
 
   after(async () => {
-    process.kill(backendProcessPid, 'SIGINT')
-    await utils.processWasKilled(backendProcessPid)
+    if (await processExists(backendProcessPid)) {
+      try {
+        process.kill(backendProcessPid, 'SIGINT')
+      } catch(err) {
+        console.log(err)
+      }
+
+      await utils.processWasKilled(backendProcessPid)
+      backendProcessPid = null
+    }
+
     const frontendPid = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'frontend'))
-    process.kill(frontendPid.pid, 'SIGINT')
-    await utils.processWasKilled(frontendPid.pid)
+    if (await processExists(frontendPid)) {
+      try {
+        process.kill(frontendPid, 'SIGINT')
+      } catch(err) {
+        console.log(err)
+      }
+
+      await utils.processWasKilled(frontendPid)
+      backendProcessPid = null
+    }
     return tools.cleanup()
   })
 
   it('should setup the frontend', function (done) {
-    this.timeout(240000)
     const command = `${tools.getExecutable()} frontend setup`
     const proc = exec(command)
     const messages = []
@@ -37,8 +53,6 @@ describe('Frontend Setup', function () {
       'On which port should the Rapid', 'On which port should the HMR',
       'On which port should the remote', 'development sourcemap', 'correct?']
       let skipLog = false
-
-
 
       confirmable.forEach(pattern => {
         if (data.includes(pattern) && !answered.includes(pattern)) {
@@ -74,7 +88,6 @@ describe('Frontend Setup', function () {
   })
 
   it('should be possible to start the frontend, when a theme is installed', function (done) {
-    this.timeout(600000)
     const themeFolder = path.join(tools.getProjectFolder(), 'themes', 'gmd-theme')
     const ex = async (done) => {
       await downloadGmdTheme(path.join(tools.getProjectFolder(), 'themes'))

@@ -2,12 +2,13 @@ const { assert, tools, utils, exec } = require('../utils')
 const request = require('request')
 const path = require('path')
 const fsEx = require('fs-extra')
+const processExists = require('process-exists')
+
 
 describe('Attached pipeline calls', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    this.timeout(10000)
     await tools.setup()
     await tools.login()
     await tools.initApp()
@@ -15,13 +16,16 @@ describe('Attached pipeline calls', function () {
   })
 
   afterEach(async () => {
-    try {
-      process.kill(backendProcessPid, 'SIGINT')
-    } catch (err) {
-      console.log(err)
-    }
+    if (await processExists(backendProcessPid)) {
+      try {
+        process.kill(backendProcessPid, 'SIGINT')
+      } catch(err) {
+        console.log(err)
+      }
 
-    await utils.processWasKilled(backendProcessPid)
+      await utils.processWasKilled(backendProcessPid)
+      backendProcessPid = null
+    }
     return tools.cleanup()
   })
 
@@ -144,7 +148,6 @@ describe('Attached pipeline calls', function () {
   })
 
   it('should catch errors with an errorCatching Step', function (done) {
-    this.timeout(600000)
     const ex = async (done) => {
       const options = {
         url: 'http://localhost:8813/trustedPipelines/shopgateIntegrationTest.errorCatchingPipeline',

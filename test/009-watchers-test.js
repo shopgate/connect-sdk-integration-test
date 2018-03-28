@@ -6,11 +6,10 @@ const path = require('path')
 const fsEx = require('fs-extra')
 const processExists = require('process-exists')
 
-describe('Watchers', function () {
+describe('File Watchers', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    this.timeout(10000)
     await tools.setup()
     await tools.login()
     await tools.initApp()

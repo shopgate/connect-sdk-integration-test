@@ -5,7 +5,6 @@ const { assert, exec, tools } = require('../utils')
  * @type {IntegrationTestUtils}
  */
 describe('Backend Start', function () {
-  this.timeout(10000)
 
   beforeEach(async () => {
     return new Promise((resolve, reject) => {
@@ -22,7 +21,6 @@ describe('Backend Start', function () {
   })
 
   it('should be possible to start the backend', function (done) {
-    this.timeout(30000)
     try {
       let killed = false
       const command = `${tools.getExecutable()} backend start`
