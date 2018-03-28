@@ -12,7 +12,7 @@ describe('Unattached pipeline calls', function () {
   })
 
   afterEach(async () => {
-    process.kill(backendProcessPid, "SIGINT")
+    process.kill(backendProcessPid, 'SIGINT')
     await utils.processWasKilled(backendProcessPid)
     return tools.cleanup()
   })

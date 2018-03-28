@@ -24,7 +24,9 @@
     "longjohn": "^0.2.12",
     "mocha": "^5.0.0",
     "process-exists": "^3.0.0",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "unzip": "^0.1.11",
+    "unzip2": "^0.2.5"
   },
   "standard": {
     "globals": [

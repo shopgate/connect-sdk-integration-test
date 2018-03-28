@@ -5,7 +5,7 @@ const es = require('event-stream')
 const path = require('path')
 const fsEx = require('fs-extra')
 
-describe('Attached pipeline calls', function () {
+describe('Watchers', function () {
   let backendProcessPid
 
   beforeEach(async () => {

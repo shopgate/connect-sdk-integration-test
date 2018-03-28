@@ -4,6 +4,7 @@ const fsEx = require('fs-extra')
 const request = require('request')
 const path = require('path')
 const { assert, exec, tools, utils } = require('../utils')
+const downloadGmdTheme = utils.downloadGmdTheme
 
 describe('Frontend Setup', function () {
   let backendProcessPid
@@ -66,9 +67,7 @@ describe('Frontend Setup', function () {
     this.timeout(600000)
     const themeFolder = path.join(tools.getProjectFolder(), 'themes', 'gmd-theme')
     const ex = async (done) => {
-      await fsEx.mkdirp(themeFolder)
-      await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', 'theme-gmd'), themeFolder)
-
+      await downloadGmdTheme(path.join(tools.getProjectFolder(), 'themes'))
       const proc = exec('npm i', { cwd: themeFolder, stdio: 'ignore' })
       const messages = []
 
@@ -87,6 +86,8 @@ describe('Frontend Setup', function () {
           }
         })
       }
+
+      proc.stderr.on('data', console.log)
       proc.on('exit', async (code, signal) => {
         startFrontend()
       })

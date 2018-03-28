@@ -15,7 +15,12 @@ describe('Attached pipeline calls', function () {
   })
 
   afterEach(async () => {
-    process.kill(backendProcessPid, 'SIGINT')
+    try {
+      process.kill(backendProcessPid, 'SIGINT')
+    } catch (err) {
+      console.log(err)
+    }
+
     await utils.processWasKilled(backendProcessPid)
     return tools.cleanup()
   })

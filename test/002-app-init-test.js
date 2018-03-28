@@ -47,12 +47,10 @@ describe('App init', () => {
       const proc = exec(command)
       const messages = []
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-        console.log(data)
         messages.push(data.msg)
       }))
 
       proc.on('exit', (code) => {
-        console.log('exit')
         assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
 
         readdir(tools.getProjectFolder(), (err, dirs) => {
@@ -119,7 +117,6 @@ describe('App init', () => {
         const proc = exec(command)
         let asked = false
         proc.stdout.on('data', (data) => {
-          console.log(data)
           if (data.includes('y/N')) {
             asked = true
             proc.stdin.write('N\n')
@@ -127,7 +124,6 @@ describe('App init', () => {
         })
 
         proc.on('exit', async (code) => {
-          console.log('exit')
           const app = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'app.json'))
           assert.ok(asked, 'Asked if reinit should be done')
           assert.deepEqual(hash, await tools.getDirectoryHash())
@@ -158,7 +154,7 @@ describe('App init', () => {
 
       proc.on('exit', async (code) => {
         assert.equal(code, 1)
-        assert.ok(messages.includes('Application shop_not_Existing not found'))
+        assert.ok(messages.includes('Application shop_not_Existing does not exist'))
         done()
       })
 
