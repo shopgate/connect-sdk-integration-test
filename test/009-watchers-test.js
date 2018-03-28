@@ -20,7 +20,7 @@ describe('File Watchers', function () {
     if (await processExists(backendProcessPid)) {
       try {
         process.kill(backendProcessPid, 'SIGINT')
-      } catch(err) {
+      } catch (err) {
         console.log(err)
       }
 
@@ -50,15 +50,18 @@ describe('File Watchers', function () {
         tools.getProjectFolder(), 'extensions',
         '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
         'shopgateIntegrationTest.loginPipeline.json')
-      const json = fsEx.readJson(pipelineFile)
 
-      json.output = []
-
+      const json = await fsEx.readJson(pipelineFile)
+      delete json.pipeline.id
       await fsEx.writeJson(pipelineFile, json)
 
-      await new Promise((resolve, reject) => setTimeout(() => {
-        invalidPipelineDetected ? setTimeout(resolve, 500) : reject('Invalid Pipeline was not detected')
-      }, 2000))
+      try {
+        await new Promise(resolve => setTimeout(resolve, 4000))
+        assert.ok(invalidPipelineDetected, 'Should have detected invalid pipeline')
+      } catch (err) {
+        assert.ifError(err)
+        done()
+      }
 
       try {
         const stat = await fsEx.lstat(pipelineFile)
@@ -96,10 +99,8 @@ describe('File Watchers', function () {
       await fsEx.writeJson(pipelineFile, {})
 
       try {
-        await new Promise((resolve, reject) => setTimeout(() => {
-          loggedSkipping && invalidPipelineDetected ? reject(new Error('Invalid Pipeline detected')) : resolve('Invalid Pipeline was not detected')
-        }, 2000))
-
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        assert.ok(loggedSkipping && invalidPipelineDetected)
         done()
       } catch (error) {
         assert.ifError(error)

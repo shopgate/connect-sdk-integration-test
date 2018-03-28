@@ -5,7 +5,6 @@ const { assert, exec, tools } = require('../utils')
  * @type {IntegrationTestUtils}
  */
 describe('Backend Start', function () {
-
   beforeEach(async () => {
     return new Promise((resolve, reject) => {
       tools.setup()
@@ -32,7 +31,7 @@ describe('Backend Start', function () {
           proc.kill()
           killed = true
         }
-      }, 28000)
+      }, 54000)
 
       let backendPid
 
