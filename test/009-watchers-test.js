@@ -21,7 +21,6 @@ describe('File Watchers', function () {
       try {
         process.kill(backendProcessPid, 'SIGINT')
       } catch (err) {
-        console.log(err)
       }
 
       await utils.processWasKilled(backendProcessPid)
@@ -52,6 +51,7 @@ describe('File Watchers', function () {
         'shopgateIntegrationTest.loginPipeline.json')
 
       const json = await fsEx.readJson(pipelineFile)
+      const pipelineId = json.pipeline.id
       delete json.pipeline.id
       await fsEx.writeJson(pipelineFile, json)
 
@@ -72,6 +72,8 @@ describe('File Watchers', function () {
 
       request.post(options, async (err, res, body) => {
         assert.ok(body.success)
+        json.pipeline.id = pipelineId
+        await fsEx.writeJson(pipelineFile, json)
         done()
       })
     })
@@ -81,15 +83,16 @@ describe('File Watchers', function () {
     let invalidPipelineDetected = false
     let loggedSkipping = false
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-      if (data.msg.includes(`Error while uploading pipeline`)) {
+      if (data.msg && data.msg.includes(`Error while uploading pipeline`)) {
         invalidPipelineDetected = true
       }
 
-      if (data.msg.includes(`The extension of the pipeline is not attached --> skip`)) {
+      if (data.msg && data.msg.includes(`The extension of the pipeline is not attached --> skip`)) {
         loggedSkipping = true
       }
     }))
     const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
+
     proc.on('exit', async () => {
       const pipelineFile = path.join(
         tools.getProjectFolder(), 'extensions',
@@ -99,8 +102,11 @@ describe('File Watchers', function () {
       await fsEx.writeJson(pipelineFile, {})
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        assert.ok(loggedSkipping && invalidPipelineDetected)
+        await new Promise(resolve => setTimeout(resolve, 8000))
+        const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
+        assert.deepEqual({ attachedExtensions: {} }, attached)
+        assert.ok(loggedSkipping)
+        assert.ok(!invalidPipelineDetected)
         done()
       } catch (error) {
         assert.ifError(error)
