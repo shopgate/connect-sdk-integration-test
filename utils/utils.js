@@ -1,6 +1,7 @@
 const async = require('async')
 const processExists = require('process-exists')
 const unzip = require('unzip')
+const request = require('request')
 const path = require('path')
 const fs = require('fs')
 const tools = require('./IntegrationTestUtils')
@@ -25,8 +26,24 @@ function processWasKilled (pid) {
 }
 
 const downloadGmdTheme = async (extensionsFolder) => {
+  const zipPath = path.join(tools.getRootDir(), 'test', 'fixtures', 'theme-gmd.zip')
   const url = 'https://github.com/shopgate/theme-gmd/archive/master.zip'
-  return new Promise((resolve, reject) => {
+  const inStream = fs.createWriteStream(zipPath)
+  const promisifiedReadStream = (stream) => {
+    return new Promise((resolve, reject) => {
+      stream.on('end', () => {
+        resolve('end')
+      })
+      stream.on('finish', () => {
+        resolve('finish')
+      })
+      stream.on('error', (error) => {
+        reject(error)
+      })
+    })
+  }
+  request(url).pipe(inStream)
+  return promisifiedReadStream(inStream).then(() => (new Promise((resolve, reject) => {
     const extractor = unzip.Extract({ path: path.join(extensionsFolder) })
     extractor.on('close', () => {
       resolve()
@@ -34,8 +51,8 @@ const downloadGmdTheme = async (extensionsFolder) => {
     extractor.on('error', (err) => {
       reject(new Error(`Error while downloading theme: ${err.message}`))
     })
-    fs.createReadStream(path.join(tools.getRootDir(), 'test', 'fixtures', 'theme-gmd.zip')).pipe(extractor)
-  })
+    fs.createReadStream(zipPath).pipe(extractor)
+  })))
 }
 
 module.exports = { processWasKilled, downloadGmdTheme }

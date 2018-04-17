@@ -25,7 +25,7 @@ describe('Extension Action', function () {
       }
       await utils.processWasKilled(backendProcessPid)
     }
-    
+
     return tools.cleanup()
   })
 
@@ -96,7 +96,7 @@ describe('Extension Action', function () {
         detProc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
           messages.push(data.msg)
         }))
-        detProc.on('exit', () => {
+        detProc.on('exit', async () => {
           assert.ok(messages.includes('Detached @shopgate/cart'), 'should log detachment of extension')
           done()
         })

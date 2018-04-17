@@ -107,11 +107,16 @@ class IntegrationTestUtils {
     let timeout = null
 
     return new Promise((resolve, reject) => {
+      const trace = []
+      const start = new Date()
+      trace.push(start)
       // Timeout if process did not start
       timeout = setTimeout(() => {
         proc.stdout.removeAllListeners()
+        trace.push(new Date())
+        console.log(trace)
         reject(new Error('Backend did not start properly'))
-      }, 20000)
+      }, 25000)
 
       // Backend started properly
       let backendPid
@@ -125,9 +130,13 @@ class IntegrationTestUtils {
             proc.stdout.removeAllListeners()
             this.currentBackendProcess = proc
             resolve(backendPid)
+          } else {
+            trace.push(data)
           }
         }))
       } catch (err) {
+        trace.push(err)
+        clearTimeout(timeout)
         reject(err)
       }
     })
