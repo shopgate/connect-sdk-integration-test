@@ -102,7 +102,12 @@ describe('File Watchers', function () {
       await fsEx.writeJson(pipelineFile, {})
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 8000))
+        let counter = 0
+        await new Promise((resolve, reject) => setInterval(() => {
+          counter++
+          if (loggedSkipping) resolve()
+          if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
+        }, 1000))
         const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
         assert.deepEqual({ attachedExtensions: {} }, attached)
         assert.ok(loggedSkipping)
