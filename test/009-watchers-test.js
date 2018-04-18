@@ -104,24 +104,30 @@ describe('File Watchers', function () {
 
       await fsEx.writeJson(pipelineFile, {})
 
+      let int
       try {
         let counter = 0
-        await new Promise((resolve, reject) => {
-          const int = setInterval(() => {
-            counter++
-            if (loggedSkipping) clearInterval(int) && resolve()
-            if (!loggedSkipping && counter >= 20) clearInterval(int) && reject(new Error('timeout'))
-          }, 1000)
-        })
+        try {
+          await new Promise((resolve, reject) => {
+            int = setInterval(() => {
+              counter++
+              if (loggedSkipping) resolve()
+              if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
+            }, 1000)
+          })
+          clearInterval(int)
+        } catch (error) {
+          clearInterval(int)
+        }
 
         const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
-        assert.deepEqual({ attachedExtensions: {} }, attached)
-        assert.ok(loggedSkipping)
-        assert.ok(!invalidPipelineDetected)
+        await assert.deepEqual({ attachedExtensions: {} }, attached)
+        await assert.ok(loggedSkipping)
+        await assert.ok(!invalidPipelineDetected)
         done()
       } catch (error) {
-        console.log(logs)
-        assert.ifError(error)
+        clearInterval(int)
+        await assert.ifError(error)
         done()
       }
     })
