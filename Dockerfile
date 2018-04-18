@@ -5,6 +5,11 @@ RUN apk update && apk upgrade && \
 COPY package.json /src
 RUN npm i -g mocha
 RUN npm i
+
+ENV INTEGRATION_TEST true
+ENV LOG_LEVEL debug 
+ENV PROXY_PORT 8813
+
 COPY test /src/test
 COPY config /src/config
 COPY config.js /src/config.js

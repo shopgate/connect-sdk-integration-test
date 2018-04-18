@@ -106,11 +106,14 @@ describe('File Watchers', function () {
 
       try {
         let counter = 0
-        await new Promise((resolve, reject) => setInterval(() => {
-          counter++
-          if (loggedSkipping) resolve()
-          if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
-        }, 1000))
+        await new Promise((resolve, reject) => {
+          const int = setInterval(() => {
+            counter++
+            if (loggedSkipping) clearInterval(int) && resolve()
+            if (!loggedSkipping && counter >= 20) clearInterval(int) && reject(new Error('timeout'))
+          }, 1000)
+        })
+
         const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
         assert.deepEqual({ attachedExtensions: {} }, attached)
         assert.ok(loggedSkipping)
