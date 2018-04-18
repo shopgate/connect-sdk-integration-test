@@ -82,6 +82,7 @@ describe('File Watchers', function () {
   it('does not try to upload a pipeline file, if extension is detached', (done) => {
     let invalidPipelineDetected = false
     let loggedSkipping = false
+    const logs = []
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
       if (data.msg && data.msg.includes(`Error while uploading pipeline`)) {
         invalidPipelineDetected = true
@@ -90,6 +91,8 @@ describe('File Watchers', function () {
       if (data.msg && data.msg.includes(`The extension of the pipeline is not attached --> skip`)) {
         loggedSkipping = true
       }
+
+      logs.push(data.msg)
     }))
     const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
 
@@ -114,6 +117,7 @@ describe('File Watchers', function () {
         assert.ok(!invalidPipelineDetected)
         done()
       } catch (error) {
+        console.log(logs)
         assert.ifError(error)
         done()
       }
