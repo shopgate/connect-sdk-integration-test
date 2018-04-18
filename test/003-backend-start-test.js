@@ -58,6 +58,7 @@ describe('Backend Start', function () {
       })
     } catch (err) {
       assert.ifError(err)
+      done()
     }
   })
 })

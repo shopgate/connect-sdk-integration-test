@@ -70,6 +70,9 @@ describe('Extension Action', function () {
           appConfigJson().then(appConfig => {
             assert.equal(appConfig.cakeUrl, 'extension_config_original', 'should overwrite the extensions config.json')
             done()
+          }).catch((err) => {
+            assert.ifError(err)
+            done()
           })
         }, 5000)
       })
