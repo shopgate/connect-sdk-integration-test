@@ -39,6 +39,7 @@ describe('Extension Action', function () {
     }))
 
     proc.on('exit', (code) => {
+      console.log(messages)
       assert.ok(messages.includes('Downloading boilerplate ... done'), 'should have downloaded boilerplate')
       assert.ok(messages.includes('Updating backend files ... done'), 'should have updated backend files')
       assert.ok(messages.includes('Installing frontend depenencies ...'), 'should have installed frontend dependencies')
