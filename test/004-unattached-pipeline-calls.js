@@ -33,9 +33,7 @@ describe('Unattached pipeline calls', function () {
     }
 
     request.post(options, (err, res, body) => {
-      console.log(err)
       assert.ifError(err)
-      console.log(body)
       assert.ok(body.categories)
       done()
     })
