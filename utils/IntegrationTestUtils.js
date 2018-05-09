@@ -116,7 +116,7 @@ class IntegrationTestUtils {
         trace.push(new Date())
         console.log(trace)
         reject(new Error('Backend did not start properly'))
-      }, 25000)
+      }, 50000)
 
       // Backend started properly
       let backendPid
