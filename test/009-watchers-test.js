@@ -29,7 +29,7 @@ describe('File Watchers', function () {
     return tools.cleanup()
   })
 
-  it('Detects when developer changes pipeline to an invalid one', (done) => {
+  it('Detects when developer changes pipeline to an invalid one', async () => {
     let invalidPipelineDetected = false
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
       if (data.msg.includes(`Error while uploading pipeline`)) {
@@ -42,44 +42,37 @@ describe('File Watchers', function () {
       json: {}
     }
 
-    request.post(options, async (err, res, body) => {
-      assert.ifError(err)
+    const pipelineFile = path.join(
+      tools.getProjectFolder(), 'extensions',
+      '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
+      'shopgateIntegrationTest.loginPipeline.json')
 
-      const pipelineFile = path.join(
-        tools.getProjectFolder(), 'extensions',
-        '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
-        'shopgateIntegrationTest.loginPipeline.json')
-
-      const json = await fsEx.readJson(pipelineFile)
-      const pipelineId = json.pipeline.id
-      delete json.pipeline.id
-      await fsEx.writeJson(pipelineFile, json)
-
-      try {
-        await new Promise(resolve => setTimeout(resolve, 4000))
-        assert.ok(invalidPipelineDetected, 'Should have detected invalid pipeline')
-      } catch (err) {
-        assert.ifError(err)
-        done()
-      }
-
-      try {
-        const stat = await fsEx.lstat(pipelineFile)
-        assert.fail(stat)
-      } catch (err) {
-        assert.ok(err)
-      }
-
-      request.post(options, async (err, res, body) => {
-        assert.ok(body.success)
-        json.pipeline.id = pipelineId
-        await fsEx.writeJson(pipelineFile, json)
-        done()
+    return new Promise((resolve, reject) => {
+      request.post(options, (err, res, body) => {
+        if (err) return reject(err)
+        fsEx.readJson(pipelineFile).then(async (json) => {
+          const pipelineId = json.pipeline.id
+          delete json.pipeline.id
+          try {
+            await fsEx.writeJson(pipelineFile, json)
+            await new Promise(resolve => setTimeout(resolve, 4000))
+            assert.ok(invalidPipelineDetected, 'Should have detected invalid pipeline')
+            request.post(options, (err, res, body) => {
+              if (err) return reject(err)
+              json.pipeline.id = pipelineId
+              fsEx.writeJSON(pipelineFile, json).then(resolve)
+            })
+          } catch (err) {
+            reject(err)
+          }
+        }).catch(err => {
+          reject(err)
+        })
       })
     })
   })
 
-  it('does not try to upload a pipeline file, if extension is detached', (done) => {
+  it('does not try to upload a pipeline file, if extension is detached', async () => {
     let invalidPipelineDetected = false
     let loggedSkipping = false
     const logs = []
@@ -94,42 +87,47 @@ describe('File Watchers', function () {
 
       logs.push(data.msg)
     }))
-    const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
 
-    proc.on('exit', async () => {
-      const pipelineFile = path.join(
-        tools.getProjectFolder(), 'extensions',
-        '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
-        'shopgateIntegrationTest.loginPipeline.json')
+    return new Promise((resolve, reject) => {
+      const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
+      proc.on('exit', async () => {
+        const pipelineFile = path.join(
+          tools.getProjectFolder(), 'extensions',
+          '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
+          'shopgateIntegrationTest.loginPipeline.json')
 
-      await fsEx.writeJson(pipelineFile, {})
-
-      let int
-      try {
+        await fsEx.writeJson(pipelineFile, {})
+        await new Promise(resolve => setTimeout(resolve, 4000))
+        let int
         let counter = 0
         try {
-          await new Promise((resolve, reject) => {
-            int = setInterval(() => {
-              counter++
-              if (loggedSkipping) resolve()
-              if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
-            }, 1000)
-          })
+          const check = () => {
+            return new Promise((resolve, reject) => {
+              int = setInterval(() => {
+                counter++
+                if (loggedSkipping) resolve()
+                if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
+                if (logs.includes('SDK connection closed')) reject(new Error('SDK connection closed'))
+              }, 1000)
+            })
+          }
+          await check()
           clearInterval(int)
+
+          try {
+            const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
+            await assert.deepEqual({ attachedExtensions: {} }, attached)
+            await assert.ok(loggedSkipping)
+            await assert.ok(!invalidPipelineDetected)
+            resolve()
+          } catch (err) {
+            reject(err)
+          }
         } catch (error) {
           clearInterval(int)
+          reject(error)
         }
-
-        const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
-        await assert.deepEqual({ attachedExtensions: {} }, attached)
-        await assert.ok(loggedSkipping)
-        await assert.ok(!invalidPipelineDetected)
-        done()
-      } catch (error) {
-        clearInterval(int)
-        await assert.ifError(error)
-        done()
-      }
+      })
     })
   })
 })
