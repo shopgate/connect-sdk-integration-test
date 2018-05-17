@@ -71,6 +71,7 @@ describe('Extension Action', function () {
       proc.on('exit', async (code, signal) => {
         try {
           assert.ok(messages.includes('Attached @shopgate/cart (testing-manual)'), 'should log attachment of extension')
+          await new Promise(resolve => setTimeout(resolve, 2000))
           const appConfig = await appConfigJson()
           assert.equal(appConfig.cakeUrl, 'extension_config_original', 'should overwrite the extensions config.json')
           resolve()
