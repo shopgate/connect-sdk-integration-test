@@ -19,6 +19,9 @@ describe('Login', function () {
         messages.push(data.msg)
       }))
 
+      proc.stderr.on('data', console.log)
+      proc.on('error', console.log)
+
       proc.on('exit', () => {
         assert.ok(messages.includes('Login failed'))
         done()
@@ -38,6 +41,9 @@ describe('Login', function () {
         messages.push(data.msg)
       }))
 
+      proc.stderr.on('data', console.log)
+      proc.on('error', console.log)
+
       proc.on('exit', () => {
         assert.ok(messages.includes('Credentials invalid'))
         done()
@@ -52,6 +58,10 @@ describe('Login', function () {
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password foobarbaz1`
       const proc = exec(command)
       const messages = []
+
+      proc.stderr.on('data', console.log)
+      proc.on('error', console.log)
+
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
         messages.push(data.msg)
       }))
@@ -71,9 +81,12 @@ describe('Login', function () {
       const messages = []
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password ${tools.getPassword()}`
       const proc = exec(command)
+      proc.stderr.on('data', console.log)
+      proc.on('error', console.log)
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
         messages.push(data.msg)
       }))
+
       proc.on('exit', () => {
         assert.ok(messages.includes('Login successful'), 'Login was successful')
         try {
@@ -90,6 +103,7 @@ describe('Login', function () {
       })
     } catch (error) {
       assert.ifError(error)
+      done()
     }
   })
 })
