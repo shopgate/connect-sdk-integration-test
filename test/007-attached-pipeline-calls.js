@@ -1,9 +1,6 @@
-const { assert, tools, utils, exec } = require('../utils')
+const { assert, tools, utils } = require('../utils')
 const request = require('request')
-const path = require('path')
-const fsEx = require('fs-extra')
 const processExists = require('process-exists')
-
 
 describe('Attached pipeline calls', function () {
   let backendProcessPid
@@ -19,7 +16,7 @@ describe('Attached pipeline calls', function () {
     if (await processExists(backendProcessPid)) {
       try {
         process.kill(backendProcessPid, 'SIGINT')
-      } catch(err) {
+      } catch (err) {
         console.log(err)
       }
 

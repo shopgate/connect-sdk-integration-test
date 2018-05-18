@@ -71,6 +71,7 @@ describe('File Watchers', function () {
       }
 
       request.post(options, async (err, res, body) => {
+        assert.ifError(err)
         assert.ok(body.success)
         json.pipeline.id = pipelineId
         await fsEx.writeJson(pipelineFile, json)

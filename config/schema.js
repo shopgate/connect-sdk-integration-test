@@ -16,6 +16,12 @@ module.exports = {
     format: String,
     env: 'SGC_APP_ID'
   },
+  altAppId: {
+    doc: 'Alternativ application id to test with (shared by all tests; don\'t use the backend/frontend action with this shop)',
+    default: 'shop_31494',
+    format: String,
+    env: 'SGC_ALT_APP_ID'
+  },
   executable: {
     doc: 'Path to the connect sdk executable',
     default: null,

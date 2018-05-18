@@ -16,7 +16,7 @@ describe('Unattached pipeline calls', function () {
     if (await processExists(backendProcessPid)) {
       try {
         process.kill(backendProcessPid, 'SIGINT')
-      } catch(err) {
+      } catch (err) {
         console.log(err)
       }
 

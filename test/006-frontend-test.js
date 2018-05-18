@@ -1,5 +1,3 @@
-const JSONStream = require('JSONStream')
-const es = require('event-stream')
 const fsEx = require('fs-extra')
 const request = require('request')
 const path = require('path')
@@ -60,9 +58,9 @@ describe('Frontend Setup', function () {
       confirmable.forEach(pattern => {
         if (data.includes(pattern) && !answered.includes(pattern)) {
           skipLog = true
-	        if (data.includes('correct?')) {
+          if (data.includes('correct?')) {
             proc.stdin.write('Y\n')
-	        } else {
+          } else {
             proc.stdin.write('\n')
           }
           answered.push(pattern)
