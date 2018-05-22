@@ -10,10 +10,15 @@ describe('Extension Action', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
-    backendProcessPid = await tools.getBackendProcess()
+    try {
+      await tools.setup()
+      await tools.login()
+      await tools.initApp()
+      backendProcessPid = await tools.getBackendProcess()
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
   })
 
   afterEach(async () => {

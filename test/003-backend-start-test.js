@@ -6,13 +6,14 @@ const { assert, exec, tools } = require('../utils')
  */
 describe('Backend Start', function () {
   beforeEach(async () => {
-    return new Promise((resolve, reject) => {
-      tools.setup()
-        .then(() => tools.login())
-        .then(() => tools.initApp())
-        .then(() => resolve())
-        .catch(err => reject(err))
-    })
+    try {
+      await tools.setup()
+      await tools.login()
+      await tools.initApp()
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
   })
 
   afterEach(async () => {

@@ -10,11 +10,15 @@ describe('File Watchers', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
-    backendProcessPid = await tools.attachDefaultExtension()
-    // await new Promise((resolve) => setTimeout(() => resolve(), 2000))
+    try {
+      await tools.setup()
+      await tools.login()
+      await tools.initApp()
+      backendProcessPid = await tools.attachDefaultExtension()
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
   })
 
   afterEach(async () => {

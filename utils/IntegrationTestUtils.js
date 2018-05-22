@@ -114,7 +114,7 @@ class IntegrationTestUtils {
       timeout = setTimeout(() => {
         proc.stdout.removeAllListeners()
         trace.push(new Date())
-        console.log(trace)
+        console.error(trace)
         reject(new Error('Backend did not start properly'))
       }, 50000)
 

@@ -6,10 +6,15 @@ describe('Attached pipeline calls', function () {
   let backendProcessPid
 
   beforeEach(async () => {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
-    backendProcessPid = await tools.attachDefaultExtension()
+    try {
+      await tools.setup()
+      await tools.login()
+      await tools.initApp()
+      backendProcessPid = await tools.attachDefaultExtension()
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
   })
 
   afterEach(async () => {

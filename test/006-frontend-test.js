@@ -8,10 +8,15 @@ const downloadGmdTheme = utils.downloadGmdTheme
 describe('Frontend Setup', function () {
   let backendProcessPid
   before(async () => {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
-    backendProcessPid = await tools.getBackendProcess()
+    try {
+      await tools.setup()
+      await tools.login()
+      await tools.initApp()
+      backendProcessPid = await tools.getBackendProcess()
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
   })
 
   after(async () => {

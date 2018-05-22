@@ -7,9 +7,14 @@ const { assert, exec, tools, utils } = require('../utils')
 
 describe('Invalid Pipeline', () => {
   beforeEach(async function () {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
+    try {
+      await tools.setup()
+      await tools.login()
+      await tools.initApp()
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
   })
 
   afterEach(async () => {
