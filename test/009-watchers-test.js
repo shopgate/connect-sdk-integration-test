@@ -14,6 +14,7 @@ describe('File Watchers', function () {
     await tools.login()
     await tools.initApp()
     backendProcessPid = await tools.attachDefaultExtension()
+    // await new Promise((resolve) => setTimeout(() => resolve(), 2000))
   })
 
   afterEach(async () => {
@@ -29,7 +30,7 @@ describe('File Watchers', function () {
     return tools.cleanup()
   })
 
-  it('Detects when developer changes pipeline to an invalid one', async () => {
+  it('detects when developer changes pipeline to an invalid one', async () => {
     let invalidPipelineDetected = false
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
       if (data.msg.includes(`Error while uploading pipeline`)) {
@@ -72,7 +73,7 @@ describe('File Watchers', function () {
     })
   })
 
-  it('does not try to upload a pipeline file, if extension is detached', async () => {
+  it.skip('does not try to upload a pipeline file, if extension is detached', async () => {
     let invalidPipelineDetected = false
     let loggedSkipping = false
     const logs = []
@@ -91,12 +92,9 @@ describe('File Watchers', function () {
     return new Promise((resolve, reject) => {
       const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
       proc.on('exit', async () => {
-        const pipelineFile = path.join(
-          tools.getProjectFolder(), 'extensions',
-          '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
-          'shopgateIntegrationTest.loginPipeline.json')
+        const pipelineFile = path.join(tools.getProjectFolder(), 'extensions', '@shopgateIntegrationTest-awesomeExtension', 'pipelines', 'shopgateIntegrationTest.loginPipeline.json')
 
-        await fsEx.writeJson(pipelineFile, {})
+        await fsEx.writeJson(pipelineFile, require('./fixtures/@shopgateIntegrationTest-awesomeExtension/pipelines/shopgateIntegrationTest.loginPipeline.json'))
         await new Promise(resolve => setTimeout(resolve, 4000))
         let int
         let counter = 0
