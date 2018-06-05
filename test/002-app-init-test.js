@@ -27,7 +27,10 @@ describe('App init', () => {
 
         proc.on('exit', (code) => {
           assert.equal(code, 1)
-          assert.ok(messages.includes('You\'re not logged in! Please run `sgcloud login` again.'))
+          assert.ok(
+            messages.includes('You\'re not logged in! Please run `sgcloud login` again.') || // pre 1.5.0-beta.2
+            messages.includes('You\'re not logged in! Please run `sgconnect login` again.')  // since 1.5.0-beta.2
+          )
           done()
         })
 
