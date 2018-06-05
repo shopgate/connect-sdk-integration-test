@@ -16,7 +16,7 @@ describe('Unattached pipeline calls', function () {
     if (await processExists(backendProcessPid)) {
       try {
         process.kill(backendProcessPid, 'SIGINT')
-      } catch(err) {
+      } catch (err) {
         console.log(err)
       }
 
@@ -28,7 +28,7 @@ describe('Unattached pipeline calls', function () {
 
   it('should send a pipeline request to the cli-proxy and receive a response', function (done) {
     const options = {
-      url: 'http://localhost:8813/pipelines/getRootCategories_v1',
+      url: 'http://localhost:8813/pipelines/shopgate.catalog.getRootCategories.v1',
       json: {}
     }
 
@@ -41,7 +41,7 @@ describe('Unattached pipeline calls', function () {
 
   it('should send an invalid pipeline request to the cli-proxy and receive an error', (done) => {
     const options = {
-      url: 'http://localhost:8813/pipelines/getRootCategories_v1',
+      url: 'http://localhost:8813/pipelines/shopgate.catalog.getRootCategories.v1',
       data: 'someQuatsch'
     }
 
@@ -68,7 +68,7 @@ describe('Unattached pipeline calls', function () {
 
   it('should send a trusted pipeline request to and receive a response', (done) => {
     const options = {
-      url: 'http://localhost:8813/trustedPipelines/getRegistrationUrl_v1',
+      url: 'http://localhost:8813/trustedPipelines/shopgate.user.getRegistrationUrl.v1',
       json: {}
     }
 

@@ -99,6 +99,7 @@ describe('Frontend Setup', function () {
       await downloadGmdTheme(path.join(tools.getProjectFolder(), 'themes'))
       process.chdir(themeFolder)
       const proc = exec('npm i', { cwd: themeFolder, stdio: 'ignore' })
+      proc.on('error', (err) => done(err))
       const startFrontend = async () => {
         const proc = exec(`${tools.getExecutable()} frontend start`)
         proc.stderr.on('data', (chunk) => {

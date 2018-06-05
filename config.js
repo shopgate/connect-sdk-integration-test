@@ -18,7 +18,7 @@ intercept(function (txt) {
   let filtered = txt
   envs.forEach(key => {
     const val = config[key]
-    // filtered = filtered.replace(val, `**${key}**`)
+    filtered = filtered.replace(val, `**${key}**`)
   })
   return filtered
 })
