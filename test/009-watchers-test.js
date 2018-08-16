@@ -6,7 +6,7 @@ const path = require('path')
 const fsEx = require('fs-extra')
 const Backend = require('../utils/backend')
 
-describe.only('File Watchers', function () {
+describe('File Watchers', function () {
   let proc
 
   beforeEach(async () => {
@@ -85,7 +85,6 @@ describe.only('File Watchers', function () {
 
     return new Promise((resolve, reject) => {
       const proc = exec(`${tools.getExecutable()} extension detach`)
-      proc.stdout.on('data', data => console.log(data.toString()))
       proc.on('exit', async () => {
         const pipelineFile = path.join(
           tools.getProjectFolder(), 'extensions',
