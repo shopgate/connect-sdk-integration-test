@@ -9,7 +9,9 @@ describe('Unattached pipeline calls', function () {
     await tools.setup()
     await tools.login()
     await tools.initApp()
+    console.log('getting process')
     backendProcessPid = await tools.getBackendProcess()
+    console.log('got process', { backendProcessPid })
   })
 
   afterEach(async () => {
@@ -21,6 +23,7 @@ describe('Unattached pipeline calls', function () {
       }
 
       await utils.processWasKilled(backendProcessPid)
+      console.log('killing process')
       backendProcessPid = null
     }
     return tools.cleanup()

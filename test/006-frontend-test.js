@@ -7,7 +7,7 @@ const { assert, exec, tools, utils } = require('../utils')
 const processExists = require('process-exists')
 const downloadGmdTheme = utils.downloadGmdTheme
 
-describe('Frontend Setup', function () {
+describe.skip('Frontend Setup', function () {
   let backendProcessPid
   before(async () => {
     await tools.setup()
@@ -60,9 +60,9 @@ describe('Frontend Setup', function () {
       confirmable.forEach(pattern => {
         if (data.includes(pattern) && !answered.includes(pattern)) {
           skipLog = true
-	        if (data.includes('correct?')) {
+          if (data.includes('correct?')) {
             proc.stdin.write('Y\n')
-	        } else {
+          } else {
             proc.stdin.write('\n')
           }
           answered.push(pattern)

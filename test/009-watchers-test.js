@@ -26,13 +26,14 @@ describe('File Watchers', function () {
       await utils.processWasKilled(backendProcessPid)
       backendProcessPid = null
     }
-    return tools.cleanup()
+    await tools.detachExtensions()
+    // return tools.cleanup()
   })
 
   it('Detects when developer changes pipeline to an invalid one', async () => {
     let invalidPipelineDetected = false
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-      if (data.msg.includes(`Error while uploading pipeline`)) {
+      if (data.msg.includes(`Pipeline invalid`)) {
         invalidPipelineDetected = true
       }
     }))
@@ -51,16 +52,16 @@ describe('File Watchers', function () {
       request.post(options, (err, res, body) => {
         if (err) return reject(err)
         fsEx.readJson(pipelineFile).then(async (json) => {
-          const pipelineId = json.pipeline.id
-          delete json.pipeline.id
+          const input = json.pipeline.input
+          delete json.pipeline.input
           try {
             await fsEx.writeJson(pipelineFile, json)
             await new Promise(resolve => setTimeout(resolve, 4000))
             assert.ok(invalidPipelineDetected, 'Should have detected invalid pipeline')
             request.post(options, (err, res, body) => {
               if (err) return reject(err)
-              json.pipeline.id = pipelineId
-              fsEx.writeJSON(pipelineFile, json).then(resolve)
+              json.pipeline.input = input
+              fsEx.writeJSON(pipelineFile, json).then((new Promise(resolve => setTimeout(resolve, 1000)))).then(resolve)
             })
           } catch (err) {
             reject(err)
@@ -77,6 +78,7 @@ describe('File Watchers', function () {
     let loggedSkipping = false
     const logs = []
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+      console.log(data)
       if (data.msg && data.msg.includes(`Error while uploading pipeline`)) {
         invalidPipelineDetected = true
       }
@@ -89,21 +91,25 @@ describe('File Watchers', function () {
     }))
 
     return new Promise((resolve, reject) => {
-      const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
+      const proc = exec(`${tools.getExecutable()} extension detach`)
       proc.on('exit', async () => {
         const pipelineFile = path.join(
           tools.getProjectFolder(), 'extensions',
           '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
           'shopgateIntegrationTest.loginPipeline.json')
 
-        await fsEx.writeJson(pipelineFile, {})
-        await new Promise(resolve => setTimeout(resolve, 4000))
+        const original = await fsEx.readJson(pipelineFile)
+        const input = original.pipeline.input
+        delete original.pipeline.input
+        await fsEx.writeJson(pipelineFile, original)
+        await new Promise(resolve => setTimeout(resolve, 1000))
         let int
         let counter = 0
         try {
           const check = () => {
             return new Promise((resolve, reject) => {
               int = setInterval(() => {
+                console.log(logs)
                 counter++
                 if (loggedSkipping) resolve()
                 if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
@@ -119,12 +125,15 @@ describe('File Watchers', function () {
             await assert.deepEqual({ attachedExtensions: {} }, attached)
             await assert.ok(loggedSkipping)
             await assert.ok(!invalidPipelineDetected)
+            original.pipeline.input = input
+            await fsEx.writeJson(pipelineFile, original)
             resolve()
           } catch (err) {
             reject(err)
           }
         } catch (error) {
           clearInterval(int)
+          console.log(logs)
           reject(error)
         }
       })

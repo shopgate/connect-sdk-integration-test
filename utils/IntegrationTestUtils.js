@@ -116,13 +116,15 @@ class IntegrationTestUtils {
         trace.push(new Date())
         console.log(trace)
         reject(new Error('Backend did not start properly'))
-      }, 50000)
+      }, 500000)
 
       // Backend started properly
       let backendPid
 
       try {
+        // proc.stdout.on('data', (data) => console.log(data))
         proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+          // console.log(data)
           if (!backendPid && data.pid) backendPid = data.pid
 
           if (data.msg.includes('Backend ready')) {
@@ -135,7 +137,7 @@ class IntegrationTestUtils {
           }
         }))
       } catch (err) {
-        trace.push(err)
+        console.log(err)
         clearTimeout(timeout)
         reject(err)
       }
@@ -166,6 +168,13 @@ class IntegrationTestUtils {
     return path.join(this.getRootDir(), 'test', 'fixtures', fixture)
   }
 
+  async detachExtensions () {
+    return new Promise((resolve, reject) => {
+      const command = `${this.getExecutable()} extension detach`
+      const proc = exec(command)
+      proc.on('exit', async (code, signal) => { resolve() })
+    })
+  }
   async attachDefaultExtension () {
     const extensionFolder = path.join(this.getProjectFolder(), 'extensions', '@shopgateIntegrationTest-awesomeExtension')
     await fsEx.mkdirp(extensionFolder)
