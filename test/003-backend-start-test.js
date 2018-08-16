@@ -36,7 +36,6 @@ describe('Backend Start', function () {
       let backendPid
 
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-        console.log(data)
         if (!backendPid && data.pid) backendPid = data.pid
         messages.push(data.msg)
         if (messages.includes('Backend ready')) {

@@ -73,12 +73,11 @@ describe('File Watchers', function () {
     })
   })
 
-  it('does not try to upload a pipeline file, if extension is detached', async () => {
+  it.skip('does not try to upload a pipeline file, if extension is detached', async () => {
     let invalidPipelineDetected = false
     let loggedSkipping = false
     const logs = []
     tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-      console.log(data)
       if (data.msg && data.msg.includes(`Error while uploading pipeline`)) {
         invalidPipelineDetected = true
       }
@@ -109,7 +108,6 @@ describe('File Watchers', function () {
           const check = () => {
             return new Promise((resolve, reject) => {
               int = setInterval(() => {
-                console.log(logs)
                 counter++
                 if (loggedSkipping) resolve()
                 if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
@@ -133,7 +131,6 @@ describe('File Watchers', function () {
           }
         } catch (error) {
           clearInterval(int)
-          console.log(logs)
           reject(error)
         }
       })
