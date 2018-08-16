@@ -3,29 +3,22 @@ const JSONStream = require('JSONStream')
 const es = require('event-stream')
 const fsEx = require('fs-extra')
 const path = require('path')
-const { assert, exec, tools, utils } = require('../utils')
-const processExists = require('process-exists')
+const { assert, exec, tools } = require('../utils')
+const Backend = require('../utils/backend')
 
 describe('Extension Action', function () {
-  let backendProcessPid
+  let proc
 
   beforeEach(async () => {
     await tools.setup()
     await tools.login()
     await tools.initApp()
-    backendProcessPid = await tools.getBackendProcess()
+    proc = new Backend()
+    await proc.start()
   })
 
   afterEach(async () => {
-    if (await processExists(backendProcessPid)) {
-      try {
-        process.kill(backendProcessPid, 'SIGKILL')
-      } catch (err) {
-        console.log(err)
-      }
-      await utils.processWasKilled(backendProcessPid)
-    }
-
+    await proc.kill()
     return tools.cleanup()
   })
 

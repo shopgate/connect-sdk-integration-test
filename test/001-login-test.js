@@ -1,6 +1,6 @@
 const JSONStream = require('JSONStream')
 const es = require('event-stream')
-const { assert, exec, tools } = require('../utils')
+const { assert, exec, tools, cmd } = require('../utils')
 describe('Login', function () {
   beforeEach(async () => {
     return tools.setup()
@@ -10,42 +10,43 @@ describe('Login', function () {
     return tools.cleanup()
   })
 
-  it('should give an error when no credentials were entered ', (done) => {
-    try {
-      const command = `${tools.getExecutable()} login --username --password`
-      const proc = exec(command)
-      const messages = []
-      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-        messages.push(data.msg)
-      }))
-
-      proc.on('exit', () => {
-        assert.ok(messages.includes('Login failed'))
-        done()
-      })
-    } catch (error) {
-      assert.ok(error)
-      done()
-    }
+  it('should give an error when no credentials were entered ', async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const childProcess = await cmd.createProcess(tools.getExecutable(), ['login', '--username', '--password'])
+        childProcess.stdin.setEncoding('utf-8')
+        childProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(log => {
+          if (log.msg.includes('Login failed')) return resolve()
+        }))
+      } catch (error) {
+        reject(error)
+      }
+    })
   })
 
-  it('should give an error when username is unknown', (done) => {
-    try {
-      const command = `${tools.getExecutable()} login --username superbaddassusernam@somerandomcorp.com --password secret`
-      const proc = exec(command)
-      const messages = []
-      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-        messages.push(data.msg)
-      }))
+  it('should give an error when username is unknown', async () => {
+    return new Promise((resolve, reject) => {
+      try {
+        const proc = cmd.createProcess(tools.getExecutable(), [
+          'login',
+          '--username',
+          'superbaddassusernam@somerandomcorp.com',
+          '--password',
+          'secret'
+        ])
+        const messages = []
+        proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+          messages.push(data.msg)
+        }))
 
-      proc.on('exit', () => {
-        assert.ok(messages.includes('Credentials invalid'))
-        done()
-      })
-    } catch (error) {
-      assert.ok(error)
-      done()
-    }
+        proc.on('exit', () => {
+          assert.ok(messages.includes('Credentials invalid'))
+          resolve()
+        })
+      } catch (error) {
+        reject(error)
+      }
+    })
   })
   it('should give an error when password is wrong', (done) => {
     try {

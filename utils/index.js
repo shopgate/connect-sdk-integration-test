@@ -11,7 +11,7 @@ const e = {
   exec: require('child_process').exec,
   assert: require('assert'),
   tools: tools,
-  utils: require('./utils')
+  utils: require('./utils'),
 }
 
 module.exports = e

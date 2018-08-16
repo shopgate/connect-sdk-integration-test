@@ -1,30 +1,21 @@
-const { assert, tools, utils, exec } = require('../utils')
+const { assert, tools } = require('../utils')
+const Backend = require('../utils/backend')
 const request = require('request')
-const path = require('path')
-const fsEx = require('fs-extra')
-const processExists = require('process-exists')
 
 describe('Attached pipeline calls', function () {
-  let backendProcessPid
+  let proc
 
   beforeEach(async () => {
     await tools.setup()
     await tools.login()
     await tools.initApp()
-    backendProcessPid = await tools.attachDefaultExtension()
+    await tools.attachDefaultExtension()
+    proc = new Backend()
+    await proc.start()
   })
 
   afterEach(async () => {
-    if (await processExists(backendProcessPid)) {
-      try {
-        process.kill(backendProcessPid, 'SIGINT')
-      } catch (err) {
-        console.log(err)
-      }
-
-      await utils.processWasKilled(backendProcessPid)
-      backendProcessPid = null
-    }
+    proc.kill()
     return tools.cleanup()
   })
 

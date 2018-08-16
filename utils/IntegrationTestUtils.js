@@ -194,16 +194,7 @@ class IntegrationTestUtils {
       })
 
       proc.on('exit', async (code, signal) => {
-        try {
-          const pid = await this.getBackendProcess()
-
-          if (code) {
-            return reject(signal)
-          }
-          resolve(pid)
-        } catch (error) {
-          return reject(error)
-        }
+        resolve()
       })
     })
   }
