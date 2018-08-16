@@ -104,7 +104,7 @@ describe('File Watchers', function () {
               int = setInterval(() => {
                 counter++
                 if (loggedSkipping) resolve()
-                if (!loggedSkipping && counter >= 60) reject(new Error('timeout'))
+                if (!loggedSkipping && counter >= 200) reject(new Error('timeout'))
                 if (logs.includes('SDK connection closed')) reject(new Error('SDK connection closed'))
               }, 1000)
             })
