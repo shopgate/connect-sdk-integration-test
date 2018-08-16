@@ -175,6 +175,21 @@ class IntegrationTestUtils {
       proc.on('exit', async (code, signal) => { resolve() })
     })
   }
+  async detachAll () {
+    return new Promise((resolve, reject) => {
+      const command = `${this.getExecutable()} extension detach`
+      const proc = exec(command)
+
+      proc.stdout.on('data', (data) => {
+        console.log(data)
+      })
+
+      proc.on('exit', async (code, signal) => {
+        resolve()
+      })
+    })
+  }
+
   async attachDefaultExtension () {
     const extensionFolder = path.join(this.getProjectFolder(), 'extensions', '@shopgateIntegrationTest-awesomeExtension')
     await fsEx.mkdirp(extensionFolder)

@@ -4,35 +4,29 @@ const JSONStream = require('JSONStream')
 const es = require('event-stream')
 const path = require('path')
 const fsEx = require('fs-extra')
-const processExists = require('process-exists')
+const Backend = require('../utils/backend')
 
-describe('File Watchers', function () {
-  let backendProcessPid
+describe.only('File Watchers', function () {
+  let proc
 
   beforeEach(async () => {
     await tools.setup()
     await tools.login()
     await tools.initApp()
-    backendProcessPid = await tools.attachDefaultExtension()
+    await tools.attachDefaultExtension()
+    proc = new Backend()
+    await proc.start()
   })
 
   afterEach(async () => {
-    if (await processExists(backendProcessPid)) {
-      try {
-        process.kill(backendProcessPid, 'SIGINT')
-      } catch (err) {
-      }
-
-      await utils.processWasKilled(backendProcessPid)
-      backendProcessPid = null
-    }
-    await tools.detachExtensions()
-    // return tools.cleanup()
+    proc.kill()
+    await tools.detachAll()
+    await tools.cleanup()
   })
 
   it('Detects when developer changes pipeline to an invalid one', async () => {
     let invalidPipelineDetected = false
-    tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+    proc.instance.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
       if (data.msg.includes(`Pipeline invalid`)) {
         invalidPipelineDetected = true
       }
@@ -61,7 +55,7 @@ describe('File Watchers', function () {
             request.post(options, (err, res, body) => {
               if (err) return reject(err)
               json.pipeline.input = input
-              fsEx.writeJSON(pipelineFile, json).then((new Promise(resolve => setTimeout(resolve, 1000)))).then(resolve)
+              fsEx.writeJSON(pipelineFile, json).then((new Promise(resolve => setTimeout(resolve, 5000)))).then(resolve)
             })
           } catch (err) {
             reject(err)
@@ -73,11 +67,11 @@ describe('File Watchers', function () {
     })
   })
 
-  it.skip('does not try to upload a pipeline file, if extension is detached', async () => {
+  it('does not try to upload a pipeline file, if extension is detached', async () => {
     let invalidPipelineDetected = false
     let loggedSkipping = false
     const logs = []
-    tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+    proc.instance.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
       if (data.msg && data.msg.includes(`Error while uploading pipeline`)) {
         invalidPipelineDetected = true
       }
@@ -91,6 +85,7 @@ describe('File Watchers', function () {
 
     return new Promise((resolve, reject) => {
       const proc = exec(`${tools.getExecutable()} extension detach`)
+      proc.stdout.on('data', data => console.log(data.toString()))
       proc.on('exit', async () => {
         const pipelineFile = path.join(
           tools.getProjectFolder(), 'extensions',
@@ -110,7 +105,7 @@ describe('File Watchers', function () {
               int = setInterval(() => {
                 counter++
                 if (loggedSkipping) resolve()
-                if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
+                if (!loggedSkipping && counter >= 60) reject(new Error('timeout'))
                 if (logs.includes('SDK connection closed')) reject(new Error('SDK connection closed'))
               }, 1000)
             })
