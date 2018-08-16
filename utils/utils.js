@@ -12,7 +12,7 @@ const tools = require('./IntegrationTestUtils')
 function processWasKilled (pid) {
   return new Promise((resolve, reject) => {
     async.retry({
-      times: 30,
+      times: 100,
       interval: 100
     }, (cb) => {
       processExists(pid)
