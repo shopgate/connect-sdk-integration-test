@@ -180,10 +180,6 @@ class IntegrationTestUtils {
       const command = `${this.getExecutable()} extension detach`
       const proc = exec(command)
 
-      proc.stdout.on('data', (data) => {
-        console.log(data)
-      })
-
       proc.on('exit', async (code, signal) => {
         resolve()
       })
