@@ -67,6 +67,7 @@ function execPromise (command, cwd, logger = null) {
 }
 
 const killProcess = async (pid) => {
+  if (!pid) return
   if (/^win/.test(process.platform)) {
     return execPromise(`taskkill /F /pid ${pid}`)
   }
