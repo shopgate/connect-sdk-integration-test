@@ -54,7 +54,7 @@ describe('Backend Start', function () {
       })
 
       proc.on('exit', async (code) => {
-        assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message.')
+        assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message. The log was:' + messages.join('\n'))
         await utils.processWasKilled(backendPid)
         done()
       })
