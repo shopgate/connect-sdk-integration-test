@@ -35,14 +35,14 @@ describe('Backend Start', function () {
 
       let backendPid
 
-      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
+      proc.stdout.pipe(JSONStream.parse()).pipe(es.map(async data => {
         if (!backendPid && data.pid) backendPid = data.pid
         messages.push(data.msg)
         if (messages.includes('Backend ready')) {
           if (!killed) {
             killed = true
             proc.kill()
-            utils.processWasKilled(backendPid)
+            await utils.processWasKilled(backendPid)
             clearTimeout(to)
           }
         }
@@ -53,9 +53,9 @@ describe('Backend Start', function () {
         done()
       })
 
-      proc.on('exit', (code) => {
+      proc.on('exit', async (code) => {
         assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message.')
-        utils.processWasKilled(backendPid)
+        await utils.processWasKilled(backendPid)
         done()
       })
     } catch (err) {
