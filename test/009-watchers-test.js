@@ -20,6 +20,7 @@ describe('File Watchers', function () {
 
   afterEach(async () => {
     proc.kill()
+    await utils.killProcess(proc.pid)
     await tools.detachAll()
     await tools.cleanup()
   })

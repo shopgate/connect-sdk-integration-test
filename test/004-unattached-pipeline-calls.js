@@ -15,6 +15,7 @@ describe('Unattached pipeline calls', function () {
 
   afterEach(async () => {
     await proc.kill()
+    await utils.killProcess(proc.pid)
     return tools.cleanup()
   })
 

@@ -1,4 +1,4 @@
-const { assert, tools } = require('../utils')
+const { assert, tools, utils } = require('../utils')
 const Backend = require('../utils/backend')
 const request = require('request')
 
@@ -16,6 +16,7 @@ describe('Attached pipeline calls', function () {
 
   afterEach(async () => {
     proc.kill()
+    await utils.killProcess(proc.pid)
     return tools.cleanup()
   })
 

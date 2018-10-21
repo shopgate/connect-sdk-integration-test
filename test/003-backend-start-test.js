@@ -25,15 +25,15 @@ describe('Backend Start', function () {
       const command = `${tools.getExecutable()} backend start`
       let proc = exec(command)
       const messages = []
+      let backendPid
 
       const to = setTimeout(() => {
         if (!killed) {
           proc.kill()
+          utils.killProcess(backendPid)
           killed = true
         }
       }, 54000)
-
-      let backendPid
 
       proc.stdout.pipe(JSONStream.parse()).pipe(es.map(async data => {
         if (!backendPid && data.pid) backendPid = data.pid
@@ -41,9 +41,15 @@ describe('Backend Start', function () {
         if (messages.includes('Backend ready')) {
           if (!killed) {
             killed = true
-            proc.kill()
-            await utils.processWasKilled(backendPid)
-            clearTimeout(to)
+            try {
+              proc.kill()
+              await utils.killProcess(backendPid)
+              await utils.processWasKilled(backendPid)
+              clearTimeout(to)
+            } catch (err) {
+              err.message += ' ' + messages.join('\n')
+              done(err)
+            }
           }
         }
       }))
@@ -55,8 +61,14 @@ describe('Backend Start', function () {
 
       proc.on('exit', async (code) => {
         assert.ok(messages.includes('Backend ready'), 'Expected backend to log a "Backend ready" message. The log was:' + messages.join('\n'))
-        await utils.processWasKilled(backendPid)
-        done()
+        try {
+          proc.kill()
+          await utils.processWasKilled(backendPid)
+          done()
+        } catch (err) {
+          err.message += ' ' + messages.join('\n')
+          done(err)
+        }
       })
     } catch (err) {
       assert.ifError(err)

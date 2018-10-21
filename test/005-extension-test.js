@@ -3,7 +3,7 @@ const JSONStream = require('JSONStream')
 const es = require('event-stream')
 const fsEx = require('fs-extra')
 const path = require('path')
-const { assert, exec, tools } = require('../utils')
+const { assert, exec, tools, utils } = require('../utils')
 const Backend = require('../utils/backend')
 
 describe('Extension Action', function () {
@@ -19,6 +19,7 @@ describe('Extension Action', function () {
 
   afterEach(async () => {
     await proc.kill()
+    await utils.killProcess(proc.pid)
     return tools.cleanup()
   })
 

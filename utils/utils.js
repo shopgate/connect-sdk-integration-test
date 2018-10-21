@@ -5,6 +5,7 @@ const request = require('request')
 const path = require('path')
 const fs = require('fs')
 const tools = require('./IntegrationTestUtils')
+const childProcess = require('child_process')
 /**
  * Checks wether a process was killed
  * @param {integer} pid
@@ -55,4 +56,21 @@ const downloadGmdTheme = async (extensionsFolder) => {
   })))
 }
 
-module.exports = { processWasKilled, downloadGmdTheme }
+function execPromise (command, cwd, logger = null) {
+  return new Promise((resolve, reject) => {
+    childProcess.exec(command, { env: process.env, cwd: cwd || '.' }, (err, stdout, stderr) => {
+      if (logger) logger.info({ command }, stdout)
+      if (err || stderr) return reject(err || new Error(stderr))
+      resolve(stdout)
+    })
+  })
+}
+
+const killProcess = async (pid) => {
+  if (/^win/.test(process.platform)) {
+    return execPromise(`taskkill /F /pid ${pid}`)
+  }
+  return execPromise(`kill ${pid}`)
+}
+
+module.exports = { processWasKilled, downloadGmdTheme, killProcess }
