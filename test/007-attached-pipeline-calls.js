@@ -16,7 +16,7 @@ describe('Attached pipeline calls', function () {
 
   afterEach(async () => {
     proc.kill()
-    await utils.killProcess(proc.pid)
+    await utils.killProcess(proc.pid).catch(() => {})
     return tools.cleanup()
   })
 
