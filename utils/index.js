@@ -13,8 +13,9 @@ const e = {
   utils: require('./utils')
 }
 
+let tools
 Object.defineProperty(e, 'tools', {
-  get: () => new IntegrationTestUtils()
+  get: () => tools || (tools = new IntegrationTestUtils())
 })
 
 module.exports = e
