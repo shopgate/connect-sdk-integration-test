@@ -5,20 +5,20 @@ const fsEx = require('fs-extra')
 const path = require('path')
 const { assert, exec, tools, utils } = require('../utils')
 
-describe('Invalid Pipeline', () => {
-  beforeEach(async function () {
+describe('Invalid Pipeline', function () {
+  beforeEach(async () => {
     await tools.setup()
     await tools.login()
     await tools.initApp()
   })
 
   afterEach(async () => {
-    return tools.cleanup()
+    await tools.cleanup()
   })
 
-  it('should throw an error, if an invalid pipeline is within the extension to be attached', async function () {
+  it('should throw an error, if an invalid pipeline is within the extension to be attached', async () => {
     const extensionFolder = '@shopgateIntegrationTest-invalidExtension'
-    const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', extensionFolder)
+    const testExtensionFolder = path.join(tools.getAppDirectory(), 'extensions', extensionFolder)
     await fsEx.mkdirp(testExtensionFolder)
     await fsEx.copy(tools.getFixtureExtensionPath(extensionFolder), testExtensionFolder)
     const command = `${tools.getExecutable()} extension attach ${extensionFolder}`

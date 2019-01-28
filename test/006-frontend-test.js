@@ -1,5 +1,3 @@
-const JSONStream = require('JSONStream')
-const es = require('event-stream')
 const fsEx = require('fs-extra')
 const request = require('request')
 const path = require('path')
@@ -18,7 +16,7 @@ describe('Frontend Setup', function () {
 
   after(async () => {
     try {
-      const frontendPid = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'frontend'))
+      const frontendPid = await fsEx.readJson(path.join(tools.getAppDirectory(), '.sgcloud', 'frontend'))
       if (frontendPid && await processExists(frontendPid.pid)) {
         try {
           process.kill(frontendPid.pid, 'SIGINT')
@@ -60,9 +58,9 @@ describe('Frontend Setup', function () {
       confirmable.forEach(pattern => {
         if (data.includes(pattern) && !answered.includes(pattern)) {
           skipLog = true
-	        if (data.includes('correct?')) {
+          if (data.includes('correct?')) {
             proc.stdin.write('Y\n')
-	        } else {
+          } else {
             proc.stdin.write('\n')
           }
           answered.push(pattern)
@@ -84,49 +82,54 @@ describe('Frontend Setup', function () {
 
     proc.on('exit', (code, signal) => {
       assert.ok(messages.includes('FrontendSetup done'), 'Should have been a success')
-      fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'frontend.json')).then(frontendJson => {
+      fsEx.readJson(path.join(tools.getAppDirectory(), '.sgcloud', 'frontend.json')).then(frontendJson => {
         assert.equal(frontendJson.port, '8080')
         done()
       }).catch(err => console.log(err))
     })
   })
 
-  it('should be possible to start the frontend, when a theme is installed', function (done) {
-    const themeFolder = path.join(tools.getProjectFolder(), 'themes', 'theme-gmd-master')
-    const workingDir = process.cwd()
+  it('should be possible to start the frontend, when a theme is installed', async () => {
+    const themeDir = path.join(tools.getAppDirectory(), 'themes', 'theme-gmd-master')
 
-    const ex = async (done) => {
-      await downloadGmdTheme(path.join(tools.getProjectFolder(), 'themes'))
-      process.chdir(themeFolder)
-      const proc = exec('npm i', { cwd: themeFolder, stdio: 'ignore' })
-      proc.on('error', (err) => done(err))
-      const startFrontend = async () => {
-        const proc = exec(`${tools.getExecutable()} frontend start`)
-        proc.stderr.on('data', (chunk) => {
-          if (!chunk.includes('No extensions found for')) {
-            assert.fail(chunk)
-          }
-        })
-        let isDone = false
-        proc.stdout.on('data', (chunk) => {
-          if (!isDone && chunk.includes('webpack: Compiled successfully.')) {
-            isDone = true
-            done()
-          }
-        })
-        proc.on('error', (err) => done(err))
-      }
+    await downloadGmdTheme(path.join(tools.getAppDirectory(), 'themes'))
+    await new Promise((resolve, reject) => {
+      const proc = exec('npm i --only=production --no-audit --no-package-lock', { cwd: themeDir })
+      proc.on('error', (err) => reject(err))
+      proc.on('exit', (code) => (code && reject(code)) || resolve())
+    })
+    await new Promise((resolve, reject) => {
+      const pkg = require(path.join(themeDir, 'package.json'))
+      const { cypress, ...devDependencies } = pkg.devDependencies
+      const devPackages = Object.keys(devDependencies).join(' ')
+      const proc = exec(`npm i --no-save --no-audit --no-package-lock ${devPackages}`, { cwd: themeDir })
+      proc.on('error', (err) => reject(err))
+      proc.on('exit', (code) => (code && reject(code)) || resolve())
+    })
 
-      proc.on('exit', async (code, signal) => {
-        process.chdir(workingDir)
-        await startFrontend()
+    await new Promise((resolve, reject) => {
+      const proc = exec(`${tools.getExecutable()} frontend start`)
+      let isDone = false
+
+      proc.stdout.on('data', (chunk) => {
+        if (!isDone && chunk.includes('webpack: Compiled successfully.')) {
+          isDone = true
+          proc.stdout.removeAllListeners('data')
+          proc.stderr.removeAllListeners('data')
+          resolve()
+        }
       })
-    }
-    ex(done)
+
+      proc.stderr.on('data', (chunk) => {
+        if (!chunk.includes('No extensions found for')) {
+          assert.fail(chunk)
+        }
+      })
+    })
   })
 
   it('should be possible to open a browser to the specified ip:port and see the theme', function (done) {
-    fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'frontend.json')).then(frontendJson => {
+    fsEx.readJson(path.join(tools.getAppDirectory(), '.sgcloud', 'frontend.json')).then(frontendJson => {
       const url = `http://${frontendJson.ip}:${frontendJson.port}`
 
       request.get(url, (err, res, body) => {

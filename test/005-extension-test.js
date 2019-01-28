@@ -54,7 +54,7 @@ describe('Extension Action', function () {
   })
 
   it('should attach extensions and apply its config', async () => {
-    const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', 'testing-manual')
+    const testExtensionFolder = path.join(tools.getAppDirectory(), 'extensions', 'testing-manual')
     await fsEx.mkdirp(testExtensionFolder, { mode: '777' })
     await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', 'shopgate-cart'), testExtensionFolder)
     const command = `${tools.getExecutable()} extension attach`
@@ -66,7 +66,7 @@ describe('Extension Action', function () {
         messages.push(JSON.parse(data).msg)
       })
 
-      const appConfigJson = async () => (fsEx.readJson(path.join(tools.getProjectFolder(), 'extensions', 'testing-manual', 'extension', 'config.json')))
+      const appConfigJson = async () => (fsEx.readJson(path.join(tools.getAppDirectory(), 'extensions', 'testing-manual', 'extension', 'config.json')))
 
       proc.on('exit', async (code, signal) => {
         try {
@@ -83,7 +83,7 @@ describe('Extension Action', function () {
   })
 
   it('should detach extensions', async () => {
-    const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', 'testing-manual')
+    const testExtensionFolder = path.join(tools.getAppDirectory(), 'extensions', 'testing-manual')
     await fsEx.mkdirp(testExtensionFolder)
     await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', 'shopgate-cart'), testExtensionFolder)
     const command = `${tools.getExecutable()} extension attach`

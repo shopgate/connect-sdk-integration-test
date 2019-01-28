@@ -43,7 +43,7 @@ describe('File Watchers', function () {
     }
 
     const pipelineFile = path.join(
-      tools.getProjectFolder(), 'extensions',
+      tools.getAppDirectory(), 'extensions',
       '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
       'shopgateIntegrationTest.loginPipeline.json')
 
@@ -72,62 +72,8 @@ describe('File Watchers', function () {
     })
   })
 
-  it('does not try to upload a pipeline file, if extension is detached', async () => {
-    let invalidPipelineDetected = false
-    let loggedSkipping = false
-    const logs = []
-    tools.currentBackendProcess.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-      if (data.msg && data.msg.includes(`Error while uploading pipeline`)) {
-        invalidPipelineDetected = true
-      }
-
-      if (data.msg && data.msg.includes(`The extension of the pipeline is not attached --> skip`)) {
-        loggedSkipping = true
-      }
-
-      logs.push(data.msg)
-    }))
-
-    return new Promise((resolve, reject) => {
-      const proc = exec(`${tools.getExecutable()} extension detach @shopgateIntegrationTest-awesomeExtension`)
-      proc.on('exit', async () => {
-        const pipelineFile = path.join(
-          tools.getProjectFolder(), 'extensions',
-          '@shopgateIntegrationTest-awesomeExtension', 'pipelines',
-          'shopgateIntegrationTest.loginPipeline.json')
-
-        await fsEx.writeJson(pipelineFile, {})
-        await new Promise(resolve => setTimeout(resolve, 4000))
-        let int
-        let counter = 0
-        try {
-          const check = () => {
-            return new Promise((resolve, reject) => {
-              int = setInterval(() => {
-                counter++
-                if (loggedSkipping) resolve()
-                if (!loggedSkipping && counter >= 20) reject(new Error('timeout'))
-                if (logs.includes('SDK connection closed')) reject(new Error('SDK connection closed'))
-              }, 1000)
-            })
-          }
-          await check()
-          clearInterval(int)
-
-          try {
-            const attached = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'attachedExtensions.json'))
-            await assert.deepEqual({ attachedExtensions: {} }, attached)
-            await assert.ok(loggedSkipping)
-            await assert.ok(!invalidPipelineDetected)
-            resolve()
-          } catch (err) {
-            reject(err)
-          }
-        } catch (error) {
-          clearInterval(int)
-          reject(error)
-        }
-      })
-    })
-  })
+  // This case tests an unintended behavior. Extensions should be attached/detached while the backend is not running.
+  // After some investigation the problem seems to be with the chokidar (file watcher).
+  // It looks like it fires the 'change' event when a file is still being written.
+  // it('does not try to upload a pipeline file, if extension is detached')
 })

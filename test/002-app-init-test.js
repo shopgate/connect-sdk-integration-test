@@ -5,7 +5,7 @@ const path = require('path')
 const fsEx = require('fs-extra')
 const { assert, exec, tools } = require('../utils')
 
-describe('App init', () => {
+describe('App init', function () {
   beforeEach(async () => {
     await tools.setup()
     await tools.login()
@@ -29,7 +29,7 @@ describe('App init', () => {
           assert.equal(code, 1)
           assert.ok(
             messages.includes('You\'re not logged in! Please run `sgcloud login` again.') || // pre 1.5.0-beta.2
-            messages.includes('You\'re not logged in! Please run `sgconnect login` again.')  // since 1.5.0-beta.2
+            messages.includes('You\'re not logged in! Please run `sgconnect login` again.') // since 1.5.0-beta.2
           )
           done()
         })
@@ -54,14 +54,14 @@ describe('App init', () => {
       }))
 
       proc.on('exit', (code) => {
-       assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
+        assert.ok(messages.includes(`The Application "${tools.getAppId()}" was successfully initialized`))
 
-        readdir(tools.getProjectFolder(), (err, dirs) => {
+        readdir(tools.getAppDirectory(), (err, dirs) => {
           if (err) return assert.ifError(err)
 
-          dirs.map(name => path.join(tools.getProjectFolder(), name))
+          dirs.map(name => path.join(tools.getAppDirectory(), name))
             .filter(async source => (lstatSync(source).isDirectory()))
-            .map(name => name.replace(path.join(tools.getProjectFolder(), '/'), ''))
+            .map(name => name.replace(path.join(tools.getAppDirectory(), '/'), ''))
 
           const checks = ['.sgcloud', 'themes', 'extensions', 'pipelines', 'trustedPipelines']
 
@@ -95,7 +95,7 @@ describe('App init', () => {
         })
 
         proc.on('exit', async (code) => {
-          const app = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'app.json'))
+          const app = await fsEx.readJson(path.join(tools.getAppDirectory(), '.sgcloud', 'app.json'))
           assert.ok(asked, 'Asked if reinit should be done')
           assert.equal(app.id, tools.getAppId())
           done()
@@ -127,7 +127,7 @@ describe('App init', () => {
         })
 
         proc.on('exit', async (code) => {
-          const app = await fsEx.readJson(path.join(tools.getProjectFolder(), '.sgcloud', 'app.json'))
+          const app = await fsEx.readJson(path.join(tools.getAppDirectory(), '.sgcloud', 'app.json'))
           assert.ok(asked, 'Asked if reinit should be done')
           assert.deepEqual(hash, await tools.getDirectoryHash())
           assert.equal(app.id, tools.getAppId())

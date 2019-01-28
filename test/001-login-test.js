@@ -1,6 +1,7 @@
 const JSONStream = require('JSONStream')
 const es = require('event-stream')
 const { assert, exec, tools } = require('../utils')
+
 describe('Login', function () {
   beforeEach(async () => {
     return tools.setup()
@@ -76,7 +77,7 @@ describe('Login', function () {
     }
   })
 
-  it('should  be possible to login with correct credentials', (done) => {
+  it('should be possible to login with correct credentials', (done) => {
     try {
       const messages = []
       const command = `${tools.getExecutable()} login --username ${tools.getUsername()} --password ${tools.getPassword()}`

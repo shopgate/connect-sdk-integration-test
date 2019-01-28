@@ -14,10 +14,11 @@ class IntegrationTestUtils {
     this.currentBackendProcess = null
     this.workingDir = IntegrationTestUtils.getUnusedRandomPath()
     this.rootDir = path.join(__dirname, '..')
-    this.appSettingsFolder = path.join(this.workingDir, 'appsettings')
-    process.env.APP_PATH = this.appSettingsFolder
-    this.userSettingsFolder = path.join(this.workingDir, 'usersettings')
-    process.env.USER_PATH = this.userSettingsFolder
+    this.appDirectory = path.join(this.workingDir, 'app')
+    this.userDirectory = path.join(this.workingDir, 'user')
+
+    process.env.APP_PATH = this.appDirectory
+    process.env.USER_DIR = this.userDirectory
   }
 
   static getUnusedRandomPath () {
@@ -33,37 +34,36 @@ class IntegrationTestUtils {
 
   async setup () {
     process.chdir(this.getRootDir())
-    await fsEx.mkdirp(this.getWorkingDirRel())
-    await fsEx.mkdirp(this.appSettingsFolder)
-    await fsEx.mkdirp(this.userSettingsFolder)
-    process.chdir(this.getWorkingDirRel())
-    process.env.APP_PATH = process.cwd()
+    await fsEx.mkdirp(this.getWorkingDir())
+    await fsEx.mkdirp(this.appDirectory)
+    await fsEx.mkdirp(this.userDirectory)
+    process.chdir(this.getWorkingDir())
   }
 
   async cleanup () {
     await this.logout()
     process.chdir(this.getRootDir())
-    process.chdir(this.getWorkingDirRel())
-    if (await fsEx.pathExists(this.appSettingsFolder)) {
-      await fsEx.emptyDir(this.appSettingsFolder)
-      await fsEx.rmdir(this.appSettingsFolder)
+    process.chdir(this.getWorkingDir())
+    if (await fsEx.pathExists(this.appDirectory)) {
+      await fsEx.emptyDir(this.appDirectory)
+      await fsEx.rmdir(this.appDirectory)
     }
 
-    if (await fsEx.pathExists(this.userSettingsFolder)) {
-      await fsEx.emptyDir(this.userSettingsFolder)
-      await fsEx.rmdir(this.userSettingsFolder)
+    if (await fsEx.pathExists(this.userDirectory)) {
+      await fsEx.emptyDir(this.userDirectory)
+      await fsEx.rmdir(this.userDirectory)
     }
     process.chdir(this.getRootDir())
     await fsEx.emptyDir(this.workingDir)
-    // await fsEx.rmdir(this.workingDir)
+    await fsEx.rmdir(this.workingDir)
   }
 
-  getAppSettingsFolder () {
-    return this.appSettingsFolder
+  getAppDirectory () {
+    return this.appDirectory
   }
 
-  getUserSettingsFolder () {
-    return this.userSettingsFolder
+  getUserDirectory () {
+    return this.userDirectory
   }
 
   getAppId () {
@@ -82,27 +82,23 @@ class IntegrationTestUtils {
     return config.executable
   }
 
-  getProjectFolder () {
-    return this.getWorkingDirRel()
-  }
-
   async login (username, password) {
     return execPromise(`${this.getExecutable()} login --username ${username || this.getUsername()} --password ${password || this.getPassword()}`,
-      { 'cwd': this.getProjectFolder() }
+      { 'cwd': this.getAppDirectory() }
     )
   }
 
   async logout () {
-    return execPromise(`${this.getExecutable()} logout`, { 'cwd': this.getProjectFolder() })
+    return execPromise(`${this.getExecutable()} logout`, { 'cwd': this.getAppDirectory() })
   }
 
   async initApp (appId) {
-    return execPromise(`${this.getExecutable()} init --appId ${appId || this.getAppId()}`, { 'cwd': this.getProjectFolder() })
+    return execPromise(`${this.getExecutable()} init --appId ${appId || this.getAppId()}`, { 'cwd': this.getAppDirectory() })
   }
 
   async getBackendProcess (username, password, appId) {
     const command = `${this.getExecutable()} backend start`
-    const proc = exec(command, { 'cwd': this.getProjectFolder() })
+    const proc = exec(command, { 'cwd': this.getAppDirectory() })
 
     let timeout = null
 
@@ -116,7 +112,7 @@ class IntegrationTestUtils {
         trace.push(new Date())
         console.log(trace)
         reject(new Error('Backend did not start properly'))
-      }, 50000)
+      }, 90000)
 
       // Backend started properly
       let backendPid
@@ -144,7 +140,7 @@ class IntegrationTestUtils {
 
   async getSession () {
     try {
-      return fsEx.readJson(path.join(this.getUserSettingsFolder(), 'session.json'))
+      return fsEx.readJson(path.join(this.getUserDirectory(), '.sgcloud', 'session.json'))
     } catch (err) {
       return {}
     }
@@ -154,7 +150,7 @@ class IntegrationTestUtils {
     return hasher.hashElement(this.workingDir)
   }
 
-  getWorkingDirRel () {
+  getWorkingDir () {
     return this.workingDir
   }
 
@@ -167,7 +163,7 @@ class IntegrationTestUtils {
   }
 
   async attachDefaultExtension () {
-    const extensionFolder = path.join(this.getProjectFolder(), 'extensions', '@shopgateIntegrationTest-awesomeExtension')
+    const extensionFolder = path.join(this.getAppDirectory(), 'extensions', '@shopgateIntegrationTest-awesomeExtension')
     await fsEx.mkdirp(extensionFolder)
     await fsEx.copy(path.join(this.getRootDir(), 'test', 'fixtures', '@shopgateIntegrationTest-awesomeExtension'), extensionFolder)
 
@@ -200,4 +196,4 @@ class IntegrationTestUtils {
   }
 }
 
-module.exports = new IntegrationTestUtils()
+exports.IntegrationTestUtils = IntegrationTestUtils
