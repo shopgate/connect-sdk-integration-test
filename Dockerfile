@@ -1,4 +1,4 @@
-FROM registry.gitlab.localdev.cc/infra/base-container/node:10-full
+FROM 602824140852.dkr.ecr.us-east-1.amazonaws.com/base/node:10
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
