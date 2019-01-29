@@ -256,17 +256,17 @@ describe('Attached pipeline calls', function () {
     login(() => (ex(done)))
   })
 
-  it('should give app and device info', function (done) {
-    const options = {
-      url: 'http://localhost:8813/trustedPipelines/shopgateIntegrationTest.getDcDataPipeline',
-      json: {}
-    }
-    request.post(options, (err, res, body) => {
-      assert.ifError(err)
+  // it('should give app and device info', function (done) {
+  //   const options = {
+  //     url: 'http://localhost:8813/trustedPipelines/shopgateIntegrationTest.getDcDataPipeline',
+  //     json: {}
+  //   }
+  //   request.post(options, (err, res, body) => {
+  //     assert.ifError(err)
 
-      assert.ok(body.appInfo.app.appVersion)
-      assert.ok(body.deviceInfo.app.os.platform)
-      done()
-    })
-  })
+  //     assert.ok(body.appInfo.app.appVersion)
+  //     assert.ok(body.deviceInfo.app.os.platform)
+  //     done()
+  //   })
+  // })
 })
