@@ -6,6 +6,8 @@ const fsEx = require('fs-extra')
 const { assert, exec, tools } = require('../utils')
 
 describe('App init', function () {
+  this.retries(2)
+
   beforeEach(async () => {
     await tools.setup()
     await tools.login()

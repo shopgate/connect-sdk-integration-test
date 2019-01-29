@@ -1,4 +1,4 @@
-const { assert, tools, utils, exec } = require('../utils')
+const { assert, tools, utils } = require('../utils')
 const request = require('request')
 const JSONStream = require('JSONStream')
 const es = require('event-stream')
@@ -7,6 +7,8 @@ const fsEx = require('fs-extra')
 const processExists = require('process-exists')
 
 describe('File Watchers', function () {
+  this.retries(2)
+
   let backendProcessPid
 
   beforeEach(async () => {

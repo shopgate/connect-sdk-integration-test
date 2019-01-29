@@ -5,6 +5,8 @@ const { assert, exec, tools } = require('../utils')
  * @type {IntegrationTestUtils}
  */
 describe('Backend Start', function () {
+  this.retries(2)
+
   beforeEach(async () => {
     await tools.setup()
     await tools.login()

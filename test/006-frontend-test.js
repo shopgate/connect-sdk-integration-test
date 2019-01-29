@@ -6,7 +6,10 @@ const processExists = require('process-exists')
 const downloadGmdTheme = utils.downloadGmdTheme
 
 describe('Frontend Setup', function () {
+  this.retries(2)
+
   let backendProcessPid
+
   before(async () => {
     await tools.setup()
     await tools.login()

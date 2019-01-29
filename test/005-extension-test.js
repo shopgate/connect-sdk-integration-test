@@ -7,6 +7,8 @@ const { assert, exec, tools, utils } = require('../utils')
 const processExists = require('process-exists')
 
 describe('Extension Action', function () {
+  this.retries(2)
+
   let backendProcessPid
 
   beforeEach(async () => {

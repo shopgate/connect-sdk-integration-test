@@ -6,6 +6,8 @@ const path = require('path')
 const { assert, exec, tools, utils } = require('../utils')
 
 describe('Invalid Pipeline', function () {
+  this.retries(2)
+
   beforeEach(async () => {
     await tools.setup()
     await tools.login()

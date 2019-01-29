@@ -3,6 +3,8 @@ const es = require('event-stream')
 const { assert, exec, tools } = require('../utils')
 
 describe('Login', function () {
+  this.retries(2)
+
   beforeEach(async () => {
     return tools.setup()
   })

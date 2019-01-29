@@ -3,6 +3,8 @@ const request = require('request')
 const processExists = require('process-exists')
 
 describe('Unattached pipeline calls', function () {
+  this.retries(2)
+
   let backendProcessPid
 
   beforeEach(async () => {
