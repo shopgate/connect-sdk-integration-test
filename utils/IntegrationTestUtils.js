@@ -196,4 +196,4 @@ class IntegrationTestUtils {
   }
 }
 
-exports.IntegrationTestUtils = IntegrationTestUtils
+module.exports = new IntegrationTestUtils()
