@@ -43,19 +43,7 @@ class IntegrationTestUtils {
   async cleanup () {
     await this.logout()
     process.chdir(this.getRootDir())
-    process.chdir(this.getWorkingDir())
-    if (await fsEx.pathExists(this.appDirectory)) {
-      await fsEx.emptyDir(this.appDirectory)
-      await fsEx.rmdir(this.appDirectory)
-    }
-
-    if (await fsEx.pathExists(this.userDirectory)) {
-      await fsEx.emptyDir(this.userDirectory)
-      await fsEx.rmdir(this.userDirectory)
-    }
-    process.chdir(this.getRootDir())
-    await fsEx.emptyDir(this.workingDir)
-    await fsEx.rmdir(this.workingDir)
+    await fsEx.remove(this.getWorkingDir())
   }
 
   getAppDirectory () {
