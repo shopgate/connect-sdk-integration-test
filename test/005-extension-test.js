@@ -120,7 +120,7 @@ describe('Extension Action', function () {
   });
 
   ['extension', 'theme'].forEach((ext) => {
-    it.only(`should upload ${ext}`, async () => {
+    it(`should upload ${ext}`, async () => {
       const extensionDirectoryName = '@shopgateIntegrationTest-testingUpload'
       const extensionsDirectory = ext === 'extension' ? 'extensions' : 'themes'
       const testExtensionDirectory = path.join(tools.getAppDirectory(), extensionsDirectory, extensionDirectoryName)
