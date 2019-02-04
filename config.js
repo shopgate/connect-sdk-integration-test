@@ -6,7 +6,8 @@ const envs = [
   'appId',
   'executable',
   'username',
-  'password'
+  'password',
+  'uploadable'
 ]
 
 envs.forEach((key) => {

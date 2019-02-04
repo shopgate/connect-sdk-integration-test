@@ -71,6 +71,10 @@ class IntegrationTestUtils {
     return config.executable
   }
 
+  getUploadable () {
+    return config.uploadable
+  }
+
   async login (username, password) {
     return execPromise(`${this.getExecutable()} login --username ${username || this.getUsername()} --password ${password || this.getPassword()}`,
       { 'cwd': this.getAppDirectory() }

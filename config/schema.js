@@ -33,5 +33,11 @@ module.exports = {
     default: null,
     format: String,
     env: 'SGC_PASSWORD'
+  },
+  uploadable: {
+    doc: 'Name of the extension to upload',
+    default: null,
+    format: String,
+    env: 'SGC_UPLOADABLE'
   }
 }

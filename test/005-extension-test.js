@@ -121,11 +121,18 @@ describe('Extension Action', function () {
 
   ['extension', 'theme'].forEach((ext) => {
     it(`should upload ${ext}`, async () => {
-      const extensionDirectoryName = '@shopgateIntegrationTest-testingUpload'
+      const uploadable = tools.getUploadable()
+      const extensionDirectoryName = uploadable.replace('/', '-')
       const extensionsDirectory = ext === 'extension' ? 'extensions' : 'themes'
       const testExtensionDirectory = path.join(tools.getAppDirectory(), extensionsDirectory, extensionDirectoryName)
       await fsEx.mkdirp(testExtensionDirectory, { mode: '777' })
-      await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', extensionDirectoryName), testExtensionDirectory)
+      await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', '@shopgateIntegrationTest-testingUpload'), testExtensionDirectory)
+
+      const extensionConfigPath = path.join(testExtensionDirectory, 'extension-config.json')
+      const extensionConfig = await fsEx.readJSON(extensionConfigPath)
+      extensionConfig.id = uploadable
+      await fsEx.writeJSON(extensionConfigPath, extensionConfig)
+
       const command = `${tools.getExecutable()} ${ext} upload ${extensionDirectoryName}`
       const messages = []
       const debugMessages = []
@@ -147,7 +154,6 @@ describe('Extension Action', function () {
         })
       })
 
-      const extensionConfig = await fsEx.readJSON(path.join(testExtensionDirectory, 'extension-config.json'))
       const extensionId = `${extensionConfig.id}@${extensionConfig.version}`
 
       assert.deepStrictEqual(messages, [
