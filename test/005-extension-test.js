@@ -179,12 +179,14 @@ describe('Extension Action', function () {
           return tempDirectory
         })
 
+        const archivePath = path.join(tempDirectory, extensionDirectoryName)
+
         assert.deepStrictEqual(debugMessages, [
           `Building a list of exclusions based on .gitignore file`,
           `.gitignore does not exist in ${testExtensionDirectory}. Using defaults`,
           `Packing ${testExtensionDirectory} into tar archive...`,
-          `Packed ${extensionId} into ${tempDirectory}${path.sep}${extensionDirectoryName}.tar.gz`,
-          `Deleting ${tempDirectory}${path.sep}${extensionDirectoryName}.tar.gz`,
+          `Packed ${extensionId} into ${archivePath}.tar.gz`,
+          `Deleting ${archivePath}.tar.gz`,
           `Uploaded ${extensionId}`,
           `Preprocessing of ${extensionId} finished`
         ])
