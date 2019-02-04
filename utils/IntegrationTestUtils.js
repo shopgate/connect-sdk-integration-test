@@ -44,6 +44,7 @@ class IntegrationTestUtils {
     await this.logout()
     process.chdir(this.getRootDir())
     await fsEx.remove(this.getWorkingDir())
+    await new Promise(resolve => setTimeout(resolve, 1000))
   }
 
   getAppDirectory () {

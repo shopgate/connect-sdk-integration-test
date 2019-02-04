@@ -117,5 +117,72 @@ describe('Extension Action', function () {
         }
       })
     })
+  });
+
+  ['extension', 'theme'].forEach((ext) => {
+    it.only(`should upload ${ext}`, async () => {
+      const extensionDirectoryName = '@shopgateIntegrationTest-testingUpload'
+      const extensionsDirectory = ext === 'extension' ? 'extensions' : 'themes'
+      const testExtensionDirectory = path.join(tools.getAppDirectory(), extensionsDirectory, extensionDirectoryName)
+      await fsEx.mkdirp(testExtensionDirectory, { mode: '777' })
+      await fsEx.copy(path.join(tools.getRootDir(), 'test', 'fixtures', extensionDirectoryName), testExtensionDirectory)
+      const command = `${tools.getExecutable()} ${ext} upload ${extensionDirectoryName}`
+      const messages = []
+      const debugMessages = []
+
+      await new Promise((resolve, reject) => {
+        const proc = exec(command)
+
+        proc.stdout.on('data', (data) => {
+          try {
+            const log = JSON.parse(data.toString())
+            debugMessages.push(log.msg)
+          } catch (err) {
+            messages.push(data.toString())
+          }
+        })
+
+        proc.on('exit', () => {
+          resolve()
+        })
+      })
+
+      const extensionConfig = await fsEx.readJSON(path.join(testExtensionDirectory, 'extension-config.json'))
+      const extensionId = `${extensionConfig.id}@${extensionConfig.version}`
+
+      assert.deepStrictEqual(messages, [
+        `Packing ${extensionId}\n`,
+        `Uploading ${extensionId}\n`,
+        `Preprocessing ${extensionId}\n`,
+
+        ext === 'extension'
+          ? `Extension ${extensionId} was successfully uploaded\n`
+          : `Theme ${extensionId} was successfully uploaded\n`
+      ])
+
+      if (debugMessages.length) {
+        const rePacked = new RegExp(`^Packed ${extensionId} into (.*)${path.sep}${extensionDirectoryName}.tar.gz$`)
+        const reDeleting = new RegExp(`^Deleting (.*)${path.sep}${extensionDirectoryName}.tar.gz$`)
+        let tempDirectory
+
+        debugMessages.some((message, i) => {
+          const match = message.match(rePacked) || message.match(reDeleting)
+          if (match) {
+            tempDirectory = match[1]
+          }
+          return tempDirectory
+        })
+
+        assert.deepStrictEqual(debugMessages, [
+          `Building a list of exclusions based on .gitignore file`,
+          `.gitignore does not exist in ${testExtensionDirectory}. Using defaults`,
+          `Packing ${testExtensionDirectory} into tar archive...`,
+          `Packed ${extensionId} into ${tempDirectory}${path.sep}${extensionDirectoryName}.tar.gz`,
+          `Deleting ${tempDirectory}${path.sep}${extensionDirectoryName}.tar.gz`,
+          `Uploaded ${extensionId}`,
+          `Preprocessing of ${extensionId} finished`
+        ])
+      }
+    })
   })
 })
