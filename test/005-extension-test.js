@@ -132,26 +132,28 @@ describe('Extension action', () => {
         const messages = []
         const debugMessages = []
         proc.stdout.on('data', (chunk) => {
-          const log = chunk.toString()
-          try {
-            const { msg } = JSON.parse(log)
-            debugMessages.push(msg)
-          } catch (e) {
-            messages.push(log)
-          }
+          const logs = chunk.toString().split(/\n/).filter(Boolean)
+          logs.forEach((log) => {
+            try {
+              const { msg } = JSON.parse(log)
+              debugMessages.push(msg)
+            } catch (e) {
+              messages.push(log)
+            }
+          })
         })
         proc.on('close', () => resolve({ messages, debugMessages }))
         proc.on('error', reject)
       })
 
       assert.deepStrictEqual(messages, [
-        `Packing ${extensionId}\n`,
-        `Uploading ${extensionId}\n`,
-        `Preprocessing ${extensionId}\n`,
+        `Packing ${extensionId}`,
+        `Uploading ${extensionId}`,
+        `Preprocessing ${extensionId}`,
 
         ext === 'extension'
-          ? `Extension ${extensionId} was successfully uploaded\n`
-          : `Theme ${extensionId} was successfully uploaded\n`
+          ? `Extension ${extensionId} was successfully uploaded`
+          : `Theme ${extensionId} was successfully uploaded`
       ])
 
       if (debugMessages.length) {
