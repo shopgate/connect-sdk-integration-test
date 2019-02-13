@@ -12,12 +12,6 @@ describe('Backend start', () => {
   })
 
   it('should be possible to start the backend', async () => {
-    const backendProcess = await utils.startBackend()
-    await new Promise((resolve) => {
-      setImmediate(() => {
-        backendProcess.kill('SIGINT')
-        resolve()
-      })
-    })
+    await utils.startBackend()
   })
 })

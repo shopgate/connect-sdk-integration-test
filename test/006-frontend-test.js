@@ -3,6 +3,7 @@ const { spawn } = require('child_process')
 const fsEx = require('fs-extra')
 const got = require('got')
 const path = require('path')
+const os = require('os')
 const utils = require('../lib/utils')
 
 describe('Frontend', () => {
@@ -43,7 +44,7 @@ describe('Frontend', () => {
 
     await utils.runner
       .cwd(themeDir)
-      .run('npm i --only=production --no-audit --no-package-lock')
+      .run(`${os.platform() === 'win32' ? 'npm.cmd' : 'npm'} i --only=production --no-audit --no-package-lock`)
       .end()
 
     const proc = spawn(utils.executable, ['frontend', 'start'], {
@@ -68,10 +69,7 @@ describe('Frontend', () => {
       })
       frontendProcess = proc
     } catch (e) {
-      await new Promise(resolve => setImmediate(() => {
-        proc.kill('SIGINT')
-        resolve()
-      }))
+      await utils.terminate(proc)
       this.skip()
     }
   })
@@ -84,9 +82,6 @@ describe('Frontend', () => {
     const { body } = await got.post(`http://${ip}:${port}`)
     assert.ok(body.includes('<script src="/app.js"></script>'))
 
-    await new Promise(resolve => setImmediate(() => {
-      frontendProcess.kill('SIGINT')
-      resolve()
-    }))
+    await utils.terminate(frontendProcess)
   })
 })
