@@ -3,6 +3,7 @@ const { spawn } = require('child_process')
 const fsEx = require('fs-extra')
 const path = require('path')
 const utils = require('../lib/utils')
+const config = require('../config')
 
 describe('Extension action', () => {
   beforeEach('Setup environment', async () => {
@@ -54,7 +55,7 @@ describe('Extension action', () => {
       const timeout = setTimeout(() => {
         backendProcess.stdout.removeAllListeners('data')
         reject(new Error('Backend did not restart'))
-      }, 2000)
+      }, 4000)
       backendProcess.stdout.on('data', (chunk) => {
         if (chunk.toString().includes('Extension file was changed, restarting')) {
           clearTimeout(timeout)
@@ -115,7 +116,11 @@ describe('Extension action', () => {
   });
 
   ['extension', 'theme'].forEach((ext) => {
-    it(`should upload ${ext}`, async () => {
+    it(`should upload ${ext}`, async function () {
+      if (!config[`TEST_${ext.toUpperCase()}_UPLOAD`]) {
+        this.skip()
+        return
+      }
       const extensionDirectoryName = utils.uploadable.replace('/', '-')
       const extensionsDirectory = ext === 'extension' ? 'extensions' : 'themes'
       const testExtensionDirectory = path.join(utils.appDir, extensionsDirectory, extensionDirectoryName)

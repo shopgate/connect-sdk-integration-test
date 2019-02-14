@@ -7,6 +7,8 @@ const os = require('os')
 const utils = require('../lib/utils')
 
 describe('Frontend', () => {
+  let frontendProcess
+
   before('Setup environment', async () => {
     await utils.setup()
     await utils.login()
@@ -16,6 +18,9 @@ describe('Frontend', () => {
 
   after('Cleanup environment', async () => {
     await utils.cleanup()
+    if (frontendProcess) {
+      await utils.terminate(frontendProcess)
+    }
   })
 
   it('should setup the frontend', async () => {
@@ -35,7 +40,6 @@ describe('Frontend', () => {
     assert.strictEqual(frontendJson.port, 8080)
   })
 
-  let frontendProcess
   it('should be possible to start the frontend, when a theme is installed', async function () {
     this.retries(0)
 
@@ -44,7 +48,7 @@ describe('Frontend', () => {
 
     await utils.runner
       .cwd(themeDir)
-      .run(`${os.platform() === 'win32' ? 'npm.cmd' : 'npm'} i --only=production --no-audit --no-package-lock`)
+      .run(`${os.platform() === 'win32' ? 'npm.cmd' : 'npm'} i --no-audit --no-package-lock`)
       .end()
 
     const proc = spawn(utils.executable, ['frontend', 'start'], {
@@ -53,13 +57,18 @@ describe('Frontend', () => {
     })
 
     try {
+      let compiled = false
       await new Promise((resolve, reject) => {
         proc.stdout.on('data', (chunk) => {
+          compiled = false
           const log = chunk.toString()
           if (log.includes('webpack: Compiled successfully.')) {
+            compiled = true
             proc.stdout.removeAllListeners('data')
             proc.stderr.removeAllListeners('data')
-            resolve()
+            setTimeout(() => {
+              if (compiled) resolve()
+            }, 200)
           } else if (log.includes('webpack: Failed to compile.')) {
             proc.stdout.removeAllListeners('data')
             proc.stderr.removeAllListeners('data')
@@ -74,14 +83,12 @@ describe('Frontend', () => {
     }
   })
 
-  it('should be possible to open a browser to the specified ip:port and see the theme', async function () {
+  it.skip('should be possible to open a browser to the specified ip:port and see the theme', async function () {
     if (!frontendProcess) return this.skip()
 
     const frontentJsonPath = path.join(utils.appDir, '.sgcloud', 'frontend.json')
     const { ip, port } = await fsEx.readJson(frontentJsonPath)
     const { body } = await got.post(`http://${ip}:${port}`)
     assert.ok(body.includes('<script src="/app.js"></script>'))
-
-    await utils.terminate(frontendProcess)
   })
 })

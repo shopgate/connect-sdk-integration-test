@@ -39,5 +39,17 @@ module.exports = {
     default: null,
     format: String,
     env: 'SGC_UPLOADABLE'
+  },
+  testExtensionUpload: {
+    doc: 'If truthy the extension test will be run',
+    default: true,
+    format: Boolean,
+    env: 'TEST_EXTENSION_UPLOAD'
+  },
+  testThemeUpload: {
+    doc: 'If truthy the extension test will be run',
+    default: false,
+    format: Boolean,
+    env: 'TEST_THEME_UPLOAD'
   }
 }
