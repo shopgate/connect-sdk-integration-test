@@ -29,8 +29,13 @@ describe('Extension action', () => {
     const messages = await new Promise((resolve, reject) => {
       const stdout = []
       proc.stdout.on('data', (chunk) => {
-        const log = JSON.parse(chunk.toString())
-        stdout.push(log.msg)
+        try {
+          const log = JSON.parse(chunk.toString())
+          stdout.push(log.msg)
+        } catch (err) {
+          console.warn(err)
+          stdout.push(chunk.toString())
+        }
       })
       proc.on('close', () => resolve(stdout))
       proc.on('error', reject)
