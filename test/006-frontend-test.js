@@ -17,10 +17,10 @@ describe('Frontend', () => {
   })
 
   after('Cleanup environment', async () => {
-    await utils.cleanup()
     if (frontendProcess) {
       await utils.terminate(frontendProcess)
     }
+    await utils.cleanup()
   })
 
   it('should setup the frontend', async () => {
