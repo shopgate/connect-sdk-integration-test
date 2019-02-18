@@ -1,57 +1,61 @@
-
 const JSONStream = require('JSONStream')
+const assert = require('assert')
+const { spawn } = require('child_process')
 const es = require('event-stream')
 const fsEx = require('fs-extra')
 const path = require('path')
-const { assert, exec, tools, utils } = require('../utils')
+const utils = require('../lib/utils')
 
 describe('Invalid Pipeline', () => {
-  beforeEach(async function () {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
+  beforeEach('Setup environment', async () => {
+    await utils.setup()
+    await utils.login()
+    await utils.init()
   })
 
-  afterEach(async () => {
-    return tools.cleanup()
+  afterEach('Cleanup environment', async () => {
+    await utils.cleanup()
   })
 
-  it('should throw an error, if an invalid pipeline is within the extension to be attached', async function () {
-    const extensionFolder = '@shopgateIntegrationTest-invalidExtension'
-    const testExtensionFolder = path.join(tools.getProjectFolder(), 'extensions', extensionFolder)
-    await fsEx.mkdirp(testExtensionFolder)
-    await fsEx.copy(tools.getFixtureExtensionPath(extensionFolder), testExtensionFolder)
-    const command = `${tools.getExecutable()} extension attach ${extensionFolder}`
-    const proc = exec(command)
-    const messages = []
-    const errors = []
-    proc.stdout.pipe(JSONStream.parse()).pipe(es.map(data => {
-      messages.push(data.msg)
-    }))
-    proc.stderr.pipe(JSONStream.parse()).pipe(es.map(data => {
-      errors.push(data.msg)
-    }))
+  it('should throw an error, if an invalid pipeline is within the extension to be attached', async () => {
+    const extensionDir = '@shopgateIntegrationTest-invalidExtension'
+    const extensionDirPath = path.join(utils.appDir, 'extensions', extensionDir)
+    await fsEx.mkdirp(extensionDir, { mode: '777' })
+    await fsEx.copy(path.resolve(__dirname, 'fixtures', '@shopgateIntegrationTest-invalidExtension'), extensionDirPath)
+    await utils.runner
+      .run(`${utils.executable} extension attach ${extensionDir}`)
+      .code(0)
+      .end()
 
-    return new Promise((resolve, reject) => {
-      proc.on('exit', (code) => {
-        assert.ok(!code, 'Should be success')
-        const backend = exec(`${tools.getExecutable()} backend start`)
-        backend.stdout.pipe(JSONStream.parse()).pipe(es.map(async data => {
-          messages.push(data.msg)
-          try {
-            if (data.msg.startsWith('{"errors"')) {
-              const errMessages = (JSON.parse(data.msg).errors)
-              const pid = data.pid
-              assert.equal(errMessages[0].field, 'pipeline shopgateIntegrationTest.invalidPipeline')
-              assert.equal(errMessages[0].code, 'PIPELINEINVALID')
-              process.kill(pid, 'SIGINT')
-              await utils.processWasKilled(pid)
-              resolve()
-            }
-          } catch (err) {
-            reject(err)
-          }
-        }))
+    const proc = spawn(utils.executable, ['backend', 'start'], {
+      cwd: utils.workingDir,
+      env: { ...utils.env, 'INTEGRATION_TEST': true }
+    })
+    const jsonParser = JSONStream.parse()
+
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('should have been finished till now'))
+      }, 60000)
+
+      proc.stdout.pipe(jsonParser).pipe(es.map(async data => {
+        if (data.msg.startsWith('{"errors"')) {
+          const errMessages = (JSON.parse(data.msg).errors)
+          assert.equal(errMessages[0].field, 'pipeline shopgateIntegrationTest.invalidPipeline')
+          assert.equal(errMessages[0].code, 'PIPELINEINVALID')
+          proc.kill('SIGINT')
+        }
+      }))
+
+      proc.on('close', () => {
+        clearTimeout(timeout)
+        proc.stdout.unpipe(jsonParser)
+        resolve()
+      })
+
+      proc.on('error', (err) => {
+        clearTimeout(timeout)
+        reject(err)
       })
     })
   })

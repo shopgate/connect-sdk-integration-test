@@ -1,81 +1,53 @@
-const { assert, tools, utils } = require('../utils')
-const request = require('request')
-const processExists = require('process-exists')
+const assert = require('assert')
+const got = require('got')
+const utils = require('../lib/utils')
+const pkg = require('../package.json')
 
-describe('Unattached pipeline calls', function () {
-  let backendProcessPid
-
-  beforeEach(async () => {
-    await tools.setup()
-    await tools.login()
-    await tools.initApp()
-    backendProcessPid = await tools.getBackendProcess()
+describe('Unattached pipeline calls', () => {
+  const request = got.extend({
+    baseUrl: 'http://localhost:8813',
+    json: true,
+    headers: {
+      'user-agent': `${pkg.name}/${pkg.version}`
+    }
   })
 
-  afterEach(async () => {
-    if (await processExists(backendProcessPid)) {
-      try {
-        process.kill(backendProcessPid, 'SIGINT')
-      } catch (err) {
-        console.log(err)
-      }
-
-      await utils.processWasKilled(backendProcessPid)
-      backendProcessPid = null
-    }
-    return tools.cleanup()
+  before('Setup environment', async () => {
+    await utils.setup()
+    await utils.login()
+    await utils.init()
+    await utils.startBackend()
   })
 
-  it('should send a pipeline request to the cli-proxy and receive a response', function (done) {
-    const options = {
-      url: 'http://localhost:8813/pipelines/shopgate.catalog.getRootCategories.v1',
-      json: {}
-    }
-
-    request.post(options, (err, res, body) => {
-      assert.ifError(err)
-      assert.ok(body.categories)
-      done()
-    })
+  after('Cleanup environment', async () => {
+    await utils.cleanup()
   })
 
-  it('should send an invalid pipeline request to the cli-proxy and receive an error', (done) => {
-    const options = {
-      url: 'http://localhost:8813/pipelines/shopgate.catalog.getRootCategories.v1',
-      data: 'someQuatsch'
-    }
-
-    request.post(options, (err, res, body) => {
-      assert.ifError(err)
-      body = JSON.parse(body)
-      assert.equal(body.error.message, 'Invalid pipelineRequest')
-      done()
-    })
+  it('should send a pipeline request to the cli-proxy and receive a response', async () => {
+    const { body } = await request.post('/pipelines/shopgate.catalog.getRootCategories.v1', { body: {} })
+    assert.ok(body.categories)
   })
 
-  it('should send a pipeline request to a non existing pipeline and receive an error', (done) => {
-    const options = {
-      url: 'http://localhost:8813/pipelines/nonExistingPL_v1',
-      json: {}
+  it('should send an invalid pipeline request to the cli-proxy and receive an error', async () => {
+    try {
+      await request.post('/pipelines/shopgate.catalog.getRootCategories.v1', { json: false, body: 'someQuatsch' })
+    } catch (error) {
+      const body = JSON.parse(error.response.body)
+      assert.strictEqual(body.error.message, 'Invalid pipelineRequest')
     }
-
-    request.post(options, (err, res, body) => {
-      assert.ifError(err)
-      assert.equal(body.error.message, '/pipelines/nonExistingPL_v1 does not exist')
-      done()
-    })
   })
 
-  it('should send a trusted pipeline request to and receive a response', (done) => {
-    const options = {
-      url: 'http://localhost:8813/trustedPipelines/shopgate.user.getRegistrationUrl.v1',
-      json: {}
+  it('should send a pipeline request to a non existing pipeline and receive an error', async () => {
+    try {
+      await request.post('/pipelines/nonExistingPL_v1', { body: {} })
+    } catch (error) {
+      const { body } = error.response
+      assert.strictEqual(body.error.message, '/pipelines/nonExistingPL_v1 does not exist')
     }
+  })
 
-    request.post(options, (err, res, body) => {
-      assert.ifError(err)
-      assert.deepEqual(body, { url: '' })
-      done()
-    })
+  it('should send a trusted pipeline request to and receive a response', async () => {
+    const { body } = await request.post('/trustedPipelines/shopgate.user.getRegistrationUrl.v1', { body: {} })
+    assert.deepStrictEqual(body, { url: '' })
   })
 })
