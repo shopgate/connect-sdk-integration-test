@@ -117,7 +117,7 @@ describe('Extension action', () => {
 
   ['extension', 'theme'].forEach((ext) => {
     it(`should upload ${ext}`, async function () {
-      if (!config[`TEST_${ext.toUpperCase()}_UPLOAD`]) {
+      if (!config[ext === 'theme' ? 'testThemeUpload' : 'testExtensionUpload']) {
         this.skip()
         return
       }
