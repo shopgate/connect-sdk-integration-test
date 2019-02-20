@@ -83,12 +83,12 @@ describe('Frontend', () => {
     }
   })
 
-  it.skip('should be possible to open a browser to the specified ip:port and see the theme', async function () {
+  it('should be possible to open a browser to the specified ip:port and see the theme', async function () {
     if (!frontendProcess) return this.skip()
 
     const frontentJsonPath = path.join(utils.appDir, '.sgcloud', 'frontend.json')
     const { ip, port } = await fsEx.readJson(frontentJsonPath)
-    const { body } = await got.post(`http://${ip}:${port}`)
+    const { body } = await got.get(`http://${ip}:${port}`)
     assert.ok(body.includes('<script src="/app.js"></script>'))
   })
 })
