@@ -6,4 +6,4 @@ const schema = require('./schema')
 const config = convict(schema)
 config.validate({ allowed: 'strict' })
 
-module.exports = config.get()
+module.exports = config

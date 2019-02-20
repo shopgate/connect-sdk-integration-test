@@ -17,6 +17,7 @@
     "folder-hash": "^2.1.2",
     "fs-extra": "^7.0.1",
     "got": "^9.6.0",
+    "intercept-stdout": "^0.1.2",
     "mocha": "^5.2.0",
     "nixt": "^0.5.1",
     "shell-quote": "^1.6.1",

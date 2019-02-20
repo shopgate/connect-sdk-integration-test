@@ -3,7 +3,7 @@ const { spawn } = require('child_process')
 const fsEx = require('fs-extra')
 const path = require('path')
 const utils = require('../lib/utils')
-const config = require('../config')
+const config = require('../config').get()
 
 describe('Extension action', () => {
   beforeEach('Setup environment', async () => {
