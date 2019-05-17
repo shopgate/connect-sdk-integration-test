@@ -57,7 +57,7 @@ describe('Extension action', () => {
         reject(new Error('Backend did not restart'))
       }, 4000)
       backendProcess.stdout.on('data', (chunk) => {
-        if (chunk.toString().includes('Extension file was changed, restarting')) {
+        if (chunk.toString().includes('Extension file was changed; restarting')) {
           clearTimeout(timeout)
           resolve()
         }
@@ -162,8 +162,8 @@ describe('Extension action', () => {
         `Preprocessing ${extensionId}`,
 
         ext === 'extension'
-          ? `Extension ${extensionId} was successfully uploaded`
-          : `Theme ${extensionId} was successfully uploaded`
+          ? `Extension ${extensionId} successfully uploaded`
+          : `Theme ${extensionId} successfully uploaded`
       ])
 
       if (debugMessages.length) {
@@ -183,7 +183,7 @@ describe('Extension action', () => {
 
         assert.deepStrictEqual(debugMessages, [
           `Building a list of exclusions based on .gitignore file`,
-          `.gitignore does not exist in ${testExtensionDirectory}. Using defaults`,
+          `The .gitignore file does not exist in ${testExtensionDirectory}. Using default settings.`,
           `Packing ${testExtensionDirectory} into tar archive...`,
           `Packed ${extensionId} into ${archivePath}.tar.gz`,
           `Deleting ${archivePath}.tar.gz`,

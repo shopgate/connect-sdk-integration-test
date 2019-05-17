@@ -26,13 +26,13 @@ describe('Frontend', () => {
   it('should setup the frontend', async () => {
     await utils.runner
       .run(`${utils.executable} frontend setup`)
-      .on(/Which IP address/).respond('\n')
-      .on(/On which port should the app/).respond('\n')
-      .on(/On which port should the Rapid/).respond('\n')
-      .on(/On which port should the HMR/).respond('\n')
-      .on(/On which port should the remote/).respond('\n')
-      .on(/development sourcemap/).respond('\n')
-      .on(/correct\?/).respond('Y\n')
+      .on(/To which IP address should the app connect/).respond('\n')
+      .on(/On which port should the app run/).respond('\n')
+      .on(/On which port should the RAPID API run/).respond('\n')
+      .on(/On which port should the HMR \(Hot Module Replacement\) run/).respond('\n')
+      .on(/On which port should the remote dev server \(redux\) run/).respond('\n')
+      .on(/Please specify your development sourcemap type:/).respond('\n')
+      .on(/Are these settings correct/).respond('Y\n')
       .stdout(/FrontendSetup done/)
       .end()
 
@@ -62,14 +62,16 @@ describe('Frontend', () => {
         proc.stdout.on('data', (chunk) => {
           compiled = false
           const log = chunk.toString()
-          if (log.includes('webpack: Compiled successfully.')) {
+          // XXX: This is to detect why sometimes this step hangs
+          console.log(log)
+          if (log.includes(': Compiled successfully.')) {
             compiled = true
             proc.stdout.removeAllListeners('data')
             proc.stderr.removeAllListeners('data')
             setTimeout(() => {
               if (compiled) resolve()
             }, 200)
-          } else if (log.includes('webpack: Failed to compile.')) {
+          } else if (log.includes(': Failed to compile.')) {
             proc.stdout.removeAllListeners('data')
             proc.stderr.removeAllListeners('data')
             reject(new Error(log))

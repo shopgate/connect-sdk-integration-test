@@ -17,7 +17,7 @@ describe('App init', () => {
     await utils.logout()
     return utils.runner
       .run(`${utils.executable} init --appId ${utils.appId}`)
-      .stderr(/You're not logged in! Please run `sgconnect login` again\./)
+      .stderr(/You're not logged in. Please run `sgconnect login` again\./)
       .end()
   })
 

@@ -52,7 +52,7 @@ describe('Attached pipeline calls', () => {
       await request.post('/trustedPipelines/shopgateIntegrationTest.noExportPipeline', { body: {} })
     } catch (error) {
       const { body } = error.response
-      assert.ok(body.error.message.includes('Can\'t find step function'), 'Should report not finding a function')
+      assert.ok(body.error.message.includes('Cannot find step function'), 'Should report not finding a function')
       assert.ok(body.error.code, 'EUNKNOWN')
     }
   })
@@ -62,7 +62,7 @@ describe('Attached pipeline calls', () => {
       await request.post('/trustedPipelines/shopgateIntegrationTest.invalidErrorPipeline', { body: {} })
     } catch (error) {
       const { body } = error.response
-      assert.ok(body.error.message.includes('The step returned a non valid error object as error'))
+      assert.ok(body.error.message.includes('The step returned an invalid error object as error'))
       assert.ok(body.error.code, 'EUNKNOWN')
     }
   })
