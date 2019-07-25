@@ -13,6 +13,15 @@ describe('App init', () => {
     await utils.cleanup()
   })
 
+  it('should fail if run in user\'s home directory', async () => {
+    await utils.runner
+      .env('USER_DIR', utils.userDir)
+      .env('WORKING_DIR', utils.userDir)
+      .run(`${utils.executable} init --appId ${utils.appId}`)
+      .stderr(/Cannot init a new project in user's home directory/)
+      .end()
+  })
+
   it('should throw an error if not logged in', async () => {
     await utils.logout()
     return utils.runner
