@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "JSONStream": "^1.3.5",
-    "convict": "^4.4.1",
+    "convict": "^6.2.1",
     "dotenv": "^6.2.0",
     "event-stream": "^4.0.1",
     "folder-hash": "^2.1.2",
     "fs-extra": "^7.0.1",
     "got": "^9.6.0",
-    "mocha": "^5.2.0",
+    "mocha": "^7.1.2",
     "nixt": "^0.5.1",
     "shell-quote": "^1.6.1",
     "unzipper": "^0.9.10"
